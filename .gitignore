@@ -15,18 +15,47 @@ build/
 .swiftpm/
 Package.resolved
 
-# Firebase
+# Firebase — SECRETS
 GoogleService-Info.plist
+GoogleService-Info-*.plist
 .firebaserc
+firebase-debug.log
+firebase-debug.*.log
+ui-debug.log
+
+# Keys & Certificates
+*.p8
+*.p12
+*.cer
+*.mobileprovision
+*.provisionprofile
+
+# Secrets & Environment
+*.env
+*.env.*
+.env.local
+.env.production
+*.key
+*.pem
+*.secret
+credentials.json
+service-account*.json
+
+# Cloud Functions secrets
+CloudFunctions/.env
+CloudFunctions/.env.*
+CloudFunctions/node_modules/
+CloudFunctions/lib/
 
 # OS
 .DS_Store
 *.swp
 *~
+Thumbs.db
 
 # IDE
 .vscode/settings.json
+.idea/
 
-# Secrets
-*.env
-*.env.local
+# Claude memory (personnel)
+.claude/settings.local.json
