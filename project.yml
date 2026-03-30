@@ -1,0 +1,57 @@
+name: TagYourCar
+options:
+  bundleIdPrefix: com.tagyourcar
+  deploymentTarget:
+    iOS: "16.0"
+  xcodeVersion: "26.3"
+  createIntermediateGroups: true
+  groupSortPosition: top
+
+packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    from: "12.0.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    IPHONEOS_DEPLOYMENT_TARGET: "16.0"
+    CODE_SIGNING_ALLOWED: false
+    ENABLE_USER_SCRIPT_SANDBOXING: false
+
+targets:
+  TagYourCar:
+    type: application
+    platform: iOS
+    sources:
+      - TagYourCar
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.tagyourcar.app
+        GENERATE_INFOPLIST_FILE: true
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: true
+        INFOPLIST_KEY_UILaunchScreen_Generation: true
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait"
+        INFOPLIST_KEY_CFBundleDisplayName: TagYourCar
+        SWIFT_STRICT_CONCURRENCY: complete
+    dependencies:
+      - package: Firebase
+        product: FirebaseAuth
+      - package: Firebase
+        product: FirebaseFirestore
+      - package: Firebase
+        product: FirebaseFunctions
+      - package: Firebase
+        product: FirebaseMessaging
+
+  TagYourCarTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - TagYourCarTests
+    dependencies:
+      - target: TagYourCar
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.tagyourcar.tests
+        GENERATE_INFOPLIST_FILE: true

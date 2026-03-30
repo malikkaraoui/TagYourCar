@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TagYourCar — Theme Visualizer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --accent-primary: #2D1B4E;
+    --accent-interactive: #3D2B6B;
+    --accent-subtle: #4A3580;
+    --accent-muted: #8B7AAF;
+    --bg-primary: #FAFAFA;
+    --bg-card: #FFFFFF;
+    --bg-secondary: #F2F0F5;
+    --bg-separator: #E8E5ED;
+    --semantic-success: #1A7A4C;
+    --semantic-error: #C4314B;
+    --semantic-warning: #B8860B;
+    --semantic-info: #2D6A9F;
+    --text-primary: #1A1A2E;
+    --text-secondary: #6B6B80;
+    --text-on-accent: #FFFFFF;
+    --text-placeholder: #A0A0B0;
+    --radius-default: 12px;
+    --radius-large: 16px;
+    --shadow-card: 0 2px 8px rgba(45, 27, 78, 0.08);
+    --shadow-modal: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.5;
+    padding: 40px 20px;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+    color: var(--accent-primary);
+  }
+
+  h1 span { color: var(--text-secondary); font-weight: 300; }
+
+  .subtitle {
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-bottom: 48px;
+  }
+
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 24px;
+    color: var(--text-primary);
+  }
+
+  .section { margin-bottom: 48px; }
+
+  /* ── Color Swatches ── */
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+  }
+
+  .swatch {
+    border-radius: var(--radius-default);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    background: var(--bg-card);
+  }
+
+  .swatch-color {
+    height: 80px;
+    display: flex;
+    align-items: flex-end;
+    padding: 8px 12px;
+  }
+
+  .swatch-color span {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.85);
+    color: var(--text-primary);
+  }
+
+  .swatch-info {
+    padding: 12px;
+  }
+
+  .swatch-name {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .swatch-usage {
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+
+  /* ── iPhone Mockup ── */
+  .phones-row {
+    display: flex;
+    gap: 32px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .phone-wrapper { text-align: center; }
+  .phone-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .iphone {
+    width: 320px;
+    height: 640px;
+    background: var(--bg-primary);
+    border-radius: 40px;
+    border: 6px solid #1A1A2E;
+    overflow: hidden;
+    position: relative;
+    box-shadow: var(--shadow-modal), 0 0 0 2px rgba(45,27,78,0.1);
+  }
+
+  .iphone-notch {
+    width: 120px;
+    height: 28px;
+    background: #1A1A2E;
+    border-radius: 0 0 16px 16px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 10;
+  }
+
+  .iphone-screen {
+    padding: 8px 20px 0;
+    height: calc(100% - 28px - 70px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .iphone-tab-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: var(--bg-card);
+    border-top: 1px solid var(--bg-separator);
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    padding-top: 8px;
+  }
+
+  .tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    font-size: 10px;
+    color: var(--text-secondary);
+  }
+
+  .tab-item.active { color: var(--accent-primary); }
+
+  .tab-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+
+  /* ── Screen: Report ── */
+  .screen-title {
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+    margin: 16px 0 24px;
+    color: var(--text-primary);
+  }
+
+  .plate-field {
+    background: var(--bg-card);
+    border: 2px solid var(--bg-separator);
+    border-radius: var(--radius-default);
+    padding: 16px;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    color: var(--text-placeholder);
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-card);
+    transition: border-color 0.2s;
+  }
+
+  .plate-field.active {
+    border-color: var(--accent-primary);
+    color: var(--text-primary);
+  }
+
+  .plate-field.valid {
+    border-color: var(--semantic-success);
+    color: var(--text-primary);
+  }
+
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .problem-btn {
+    background: var(--bg-card);
+    border: 2px solid var(--bg-separator);
+    border-radius: var(--radius-large);
+    padding: 16px 8px;
+    text-align: center;
+    box-shadow: var(--shadow-card);
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+
+  .problem-btn:hover {
+    border-color: var(--accent-interactive);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-modal);
+  }
+
+  .problem-btn.selected {
+    border-color: var(--accent-primary);
+    background: var(--bg-secondary);
+  }
+
+  .problem-icon {
+    font-size: 28px;
+    margin-bottom: 4px;
+    display: block;
+  }
+
+  .problem-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  /* ── Screen: Confirmation ── */
+  .confirm-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 16px;
+  }
+
+  .confirm-check {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--semantic-success);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    color: white;
+    animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  @keyframes popIn {
+    0% { transform: scale(0); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  .confirm-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .confirm-sub {
+    font-size: 15px;
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 0 20px;
+  }
+
+  /* ── Screen: Notification ── */
+  .notif-screen {
+    padding-top: 20px;
+  }
+
+  .notif-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-default);
+    padding: 16px;
+    box-shadow: var(--shadow-card);
+    margin-bottom: 16px;
+  }
+
+  .notif-app-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .notif-app-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    background: var(--accent-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: white;
+  }
+
+  .notif-app-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .notif-time {
+    font-size: 11px;
+    color: var(--text-placeholder);
+    margin-left: auto;
+  }
+
+  .notif-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .notif-body {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+  /* ── Screen: Plates ── */
+  .plates-screen { padding-top: 8px; }
+
+  .plate-card {
+    background: var(--bg-card);
+    border-radius: var(--radius-default);
+    padding: 16px;
+    box-shadow: var(--shadow-card);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .plate-card-lock {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--accent-primary);
+  }
+
+  .plate-card-info { flex: 1; }
+
+  .plate-card-number {
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--text-primary);
+  }
+
+  .plate-card-status {
+    font-size: 11px;
+    color: var(--semantic-success);
+    font-weight: 500;
+  }
+
+  .add-plate-btn {
+    width: 100%;
+    padding: 14px;
+    border: 2px dashed var(--bg-separator);
+    border-radius: var(--radius-default);
+    background: transparent;
+    color: var(--accent-interactive);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+  }
+
+  .add-plate-btn:hover {
+    border-color: var(--accent-interactive);
+    background: var(--bg-secondary);
+  }
+
+  /* ── Screen: Unregistered ── */
+  .unreg-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    gap: 12px;
+    text-align: center;
+    padding: 0 12px;
+  }
+
+  .unreg-icon {
+    font-size: 48px;
+    margin-bottom: 4px;
+  }
+
+  .unreg-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .unreg-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .unreg-btn {
+    margin-top: 8px;
+    padding: 12px 24px;
+    background: var(--accent-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-default);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .unreg-btn:hover { background: var(--accent-interactive); }
+
+  /* ── Typography showcase ── */
+  .typo-showcase {
+    background: var(--bg-card);
+    border-radius: var(--radius-default);
+    padding: 32px;
+    box-shadow: var(--shadow-card);
+  }
+
+  .typo-row {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--bg-separator);
+  }
+
+  .typo-row:last-child { border-bottom: none; }
+
+  .typo-meta {
+    width: 120px;
+    flex-shrink: 0;
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .typo-sample { color: var(--text-primary); }
+  .t-title-large { font-size: 34px; font-weight: 700; }
+  .t-title-screen { font-size: 28px; font-weight: 600; }
+  .t-title-section { font-size: 20px; font-weight: 600; }
+  .t-body-large { font-size: 17px; font-weight: 400; }
+  .t-body-default { font-size: 15px; font-weight: 400; }
+  .t-caption { font-size: 13px; font-weight: 400; color: var(--text-secondary); }
+  .t-plate {
+    font-family: 'Courier New', monospace;
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: 2px;
+  }
+
+  /* ── Spacing showcase ── */
+  .spacing-demo {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .spacing-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .spacing-visual {
+    background: var(--accent-primary);
+    opacity: 0.2;
+    border-radius: 4px;
+  }
+
+  .spacing-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .spacing-value {
+    font-size: 11px;
+    color: var(--text-placeholder);
+  }
+
+  /* ── Buttons showcase ── */
+  .buttons-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .btn {
+    padding: 14px 28px;
+    border-radius: var(--radius-default);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: var(--accent-primary);
+    color: var(--text-on-accent);
+  }
+  .btn-primary:hover { background: var(--accent-interactive); }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--accent-primary);
+    border: 2px solid var(--accent-primary);
+  }
+  .btn-secondary:hover { background: var(--bg-secondary); }
+
+  .btn-success {
+    background: var(--semantic-success);
+    color: white;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--accent-interactive);
+    padding: 14px 16px;
+  }
+  .btn-ghost:hover { background: var(--bg-secondary); }
+
+  /* ── Car Top-Down View ── */
+  .car-topdown {
+    position: relative;
+    width: 180px;
+    margin: 0 auto 12px;
+  }
+
+  .car-topdown svg {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 2px 6px rgba(45,27,78,0.12));
+  }
+
+  .car-zone {
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .car-zone:hover { opacity: 0.85; }
+
+  .car-zone.active {
+    filter: brightness(1.1);
+  }
+
+  .car-zone-label {
+    font-size: 10px;
+    font-weight: 600;
+    fill: white;
+    pointer-events: none;
+    text-anchor: middle;
+  }
+
+  .car-problem-label {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-primary);
+    margin-top: 4px;
+    min-height: 20px;
+  }
+
+  .car-hint {
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-placeholder);
+    margin-bottom: 8px;
+  }
+
+  /* ── Car Flow Comparison ── */
+  .flow-compare {
+    display: flex;
+    gap: 48px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 24px;
+  }
+
+  .flow-col {
+    text-align: center;
+    max-width: 360px;
+  }
+
+  .flow-col h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+  }
+
+  .flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .flow-step {
+    background: var(--bg-card);
+    border: 1px solid var(--bg-separator);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    color: var(--text-primary);
+    width: 100%;
+    box-shadow: var(--shadow-card);
+  }
+
+  .flow-step.highlight {
+    border-color: var(--accent-primary);
+    background: var(--bg-secondary);
+    font-weight: 600;
+  }
+
+  .flow-arrow {
+    font-size: 16px;
+    color: var(--text-placeholder);
+  }
+
+  /* ── Standalone Car Demo ── */
+  .car-demo-container {
+    display: flex;
+    gap: 48px;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .car-demo-standalone {
+    background: var(--bg-card);
+    border-radius: var(--radius-default);
+    padding: 32px;
+    box-shadow: var(--shadow-card);
+    text-align: center;
+    min-width: 300px;
+  }
+
+  .car-demo-standalone h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .car-demo-standalone p {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+  }
+
+  .car-large svg {
+    width: 240px;
+    height: auto;
+    filter: drop-shadow(0 4px 12px rgba(45,27,78,0.15));
+  }
+
+  .zone-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+    text-align: left;
+  }
+
+  .zone-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+  }
+
+  .zone-legend-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: white;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .phones-row { flex-direction: column; align-items: center; }
+    .color-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    .car-demo-container { flex-direction: column; align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <h1>TagYourCar <span>Theme Visualizer</span></h1>
+  <p class="subtitle">Violet emeraude sombre · Fond clair epure · Typographie suisse — Inspiration Polestar</p>
+
+  <!-- ══════════ COULEURS ══════════ -->
+  <div class="section">
+    <h2>Palette de couleurs</h2>
+    <div class="color-grid">
+      <div class="swatch">
+        <div class="swatch-color" style="background:#2D1B4E"><span>#2D1B4E</span></div>
+        <div class="swatch-info"><div class="swatch-name">Accent Principal</div><div class="swatch-usage">Boutons, liens, tab active</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#3D2B6B"><span>#3D2B6B</span></div>
+        <div class="swatch-info"><div class="swatch-name">Accent Interactif</div><div class="swatch-usage">Hover, pressed, secondaire</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#4A3580"><span>#4A3580</span></div>
+        <div class="swatch-info"><div class="swatch-name">Accent Subtil</div><div class="swatch-usage">Icones, bordures actives</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#8B7AAF"><span>#8B7AAF</span></div>
+        <div class="swatch-info"><div class="swatch-name">Accent Muted</div><div class="swatch-usage">Texte secondaire sur sombre</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#FAFAFA; border: 1px solid #E8E5ED"><span>#FAFAFA</span></div>
+        <div class="swatch-info"><div class="swatch-name">BG Principal</div><div class="swatch-usage">Fond app</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#F2F0F5; border: 1px solid #E8E5ED"><span>#F2F0F5</span></div>
+        <div class="swatch-info"><div class="swatch-name">BG Secondaire</div><div class="swatch-usage">Sections, groupes</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#1A7A4C"><span>#1A7A4C</span></div>
+        <div class="swatch-info"><div class="swatch-name">Succes</div><div class="swatch-usage">Envoi confirme, validation</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#C4314B"><span>#C4314B</span></div>
+        <div class="swatch-info"><div class="swatch-name">Erreur</div><div class="swatch-usage">Format invalide, erreurs</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#B8860B"><span>#B8860B</span></div>
+        <div class="swatch-info"><div class="swatch-name">Warning</div><div class="swatch-usage">Avertissements</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#1A1A2E"><span>#1A1A2E</span></div>
+        <div class="swatch-info"><div class="swatch-name">Texte Principal</div><div class="swatch-usage">Titres, corps</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#6B6B80"><span>#6B6B80</span></div>
+        <div class="swatch-info"><div class="swatch-name">Texte Secondaire</div><div class="swatch-usage">Sous-titres, meta</div></div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-color" style="background:#E8E5ED; border: 1px solid #ccc"><span>#E8E5ED</span></div>
+        <div class="swatch-info"><div class="swatch-name">Separateur</div><div class="swatch-usage">Lignes, bordures</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ ECRANS IPHONE ══════════ -->
+  <div class="section">
+    <h2>Ecrans principaux</h2>
+    <div class="phones-row">
+
+      <!-- Phone 1: Signalement -->
+      <div class="phone-wrapper">
+        <div class="phone-label">Signaler</div>
+        <div class="iphone">
+          <div class="iphone-notch"></div>
+          <div class="iphone-screen">
+            <div class="screen-title">Signaler un probleme</div>
+            <div class="plate-field active">AB-123-CD</div>
+            <div class="problem-grid">
+              <div class="problem-btn selected">
+                <span class="problem-icon">💡</span>
+                <span class="problem-label">Phares allumes</span>
+              </div>
+              <div class="problem-btn">
+                <span class="problem-icon">🪟</span>
+                <span class="problem-label">Vitre ouverte</span>
+              </div>
+              <div class="problem-btn">
+                <span class="problem-icon">🅿️</span>
+                <span class="problem-label">Mal gare</span>
+              </div>
+              <div class="problem-btn">
+                <span class="problem-icon">⚠️</span>
+                <span class="problem-label">Autre</span>
+              </div>
+            </div>
+          </div>
+          <div class="iphone-tab-bar">
+            <div class="tab-item active">
+              <div class="tab-icon">📢</div>
+              Signaler
+            </div>
+            <div class="tab-item">
+              <div class="tab-icon">🚗</div>
+              Plaques
+            </div>
+            <div class="tab-item">
+              <div class="tab-icon">📋</div>
+              Historique
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phone 2: Confirmation -->
+      <div class="phone-wrapper">
+        <div class="phone-label">Confirmation</div>
+        <div class="iphone">
+          <div class="iphone-notch"></div>
+          <div class="iphone-screen">
+            <div class="confirm-screen">
+              <div class="confirm-check">✓</div>
+              <div class="confirm-title">C'est envoye !</div>
+              <div class="confirm-sub">Le proprietaire de AB-1••-CD sera notifie de ses phares allumes.</div>
+            </div>
+          </div>
+          <div class="iphone-tab-bar">
+            <div class="tab-item active">
+              <div class="tab-icon">📢</div>
+              Signaler
+            </div>
+            <div class="tab-item">
+              <div class="tab-icon">🚗</div>
+              Plaques
+            </div>
+            <div class="tab-item">
+              <div class="tab-icon">📋</div>
+              Historique
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phone 3: Notification -->
+      <div class="phone-wrapper">
+        <div class="phone-label">Notification</div>
+        <div class="iphone">
+          <div class="iphone-notch"></div>
+          <div class="iphone-screen">
+            <div class="notif-screen">
+              <div style="font-size:13px; color:var(--text-secondary); text-align:center; margin-bottom:16px;">Vendredi 20 mars</div>
+              <div class="notif-card">
+                <div class="notif-app-row">
+                  <div class="notif-app-icon">T</div>
+                  <div class="notif-app-name">TagYourCar</div>
+                  <div class="notif-time">il y a 2 min</div>
+                </div>
+                <div class="notif-title">💡 Phares allumes sur AB-1••-CD</div>
+                <div class="notif-body">Quelqu'un vous signale que vos phares sont restes allumes. Pensez a les eteindre !</div>
+              </div>
+              <div class="notif-card" style="opacity: 0.5;">
+                <div class="notif-app-row">
+                  <div class="notif-app-icon" style="background:#999">M</div>
+                  <div class="notif-app-name">Messages</div>
+                  <div class="notif-time">14:32</div>
+                </div>
+                <div class="notif-title">Marie</div>
+                <div class="notif-body">Ok on se retrouve la-bas a 18h</div>
+              </div>
+              <div class="notif-card" style="opacity: 0.3;">
+                <div class="notif-app-row">
+                  <div class="notif-app-icon" style="background:#999">C</div>
+                  <div class="notif-app-name">Calendrier</div>
+                  <div class="notif-time">12:00</div>
+                </div>
+                <div class="notif-title">Reunion equipe</div>
+                <div class="notif-body">Dans 30 minutes</div>
+              </div>
+            </div>
+          </div>
+          <div class="iphone-tab-bar" style="opacity:0"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════ SELECTION PAR ZONE VOITURE ══════════ -->
+  <div class="section">
+    <h2>Selection par zone — Vue de dessus</h2>
+    <p style="color:var(--text-secondary); font-size:15px; margin-bottom:32px; max-width:700px;">
+      Apres la saisie de la plaque, l'utilisateur voit une voiture vue de dessus decoupee en 3 zones tappables.
+      Il tape sur la zone du probleme → le type de probleme se selectionne automatiquement → envoi.
+    </p>
+
+    <div class="car-demo-container">
+
+      <!-- Phone: Car selection -->
+      <div class="phone-wrapper">
+        <div class="phone-label">Flow voiture</div>
+        <div class="iphone">
+          <div class="iphone-notch"></div>
+          <div class="iphone-screen">
+            <div class="screen-title" style="font-size:17px; margin:12px 0 8px;">Ou est le probleme ?</div>
+            <div class="plate-field valid" style="font-size:20px; padding:10px; margin-bottom:12px;">AB-123-CD ✓</div>
+            <div class="car-hint">Touchez la zone concernee</div>
+            <div class="car-topdown" id="car-phone" style="width:260px;">
+              <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+                <!-- Car horizontal (landscape) - nose left -->
+                <defs>
+                  <clipPath id="carClip">
+                    <path d="M20,60 Q0,65 0,100 Q0,135 20,140 L80,155 Q100,160 120,160 L300,160 Q340,160 360,155 L385,145 Q400,140 400,100 Q400,60 385,55 L360,45 Q340,40 300,40 L120,40 Q100,40 80,45 Z"/>
+                  </clipPath>
+                </defs>
+
+                <!-- Car outline -->
+                <path d="M20,60 Q0,65 0,100 Q0,135 20,140 L80,155 Q100,160 120,160 L300,160 Q340,160 360,155 L385,145 Q400,140 400,100 Q400,60 385,55 L360,45 Q340,40 300,40 L120,40 Q100,40 80,45 Z" fill="none" stroke="var(--bg-separator)" stroke-width="2"/>
+
+                <!-- Zone 1: Avant / left (0-133) -->
+                <rect class="car-zone" id="zone-front" x="0" y="40" width="133" height="120" clip-path="url(#carClip)"
+                  fill="#2D1B4E" opacity="0.15" onclick="selectZone('front')"/>
+                <text x="65" y="104" text-anchor="middle" fill="var(--accent-primary)" font-size="12" font-weight="600">AVANT</text>
+
+                <!-- Divider 1 -->
+                <line x1="133" y1="40" x2="133" y2="160" stroke="var(--bg-separator)" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+                <!-- Zone 2: Milieu (133-267) -->
+                <rect class="car-zone" id="zone-middle" x="133" y="40" width="134" height="120" clip-path="url(#carClip)"
+                  fill="#3D2B6B" opacity="0.1" onclick="selectZone('middle')"/>
+                <text x="200" y="104" text-anchor="middle" fill="var(--accent-interactive)" font-size="12" font-weight="600">MILIEU</text>
+
+                <!-- Divider 2 -->
+                <line x1="267" y1="40" x2="267" y2="160" stroke="var(--bg-separator)" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+                <!-- Zone 3: Arriere / right (267-400) -->
+                <rect class="car-zone" id="zone-rear" x="267" y="40" width="133" height="120" clip-path="url(#carClip)"
+                  fill="#4A3580" opacity="0.1" onclick="selectZone('rear')"/>
+                <text x="333" y="104" text-anchor="middle" fill="var(--accent-subtle)" font-size="12" font-weight="600">ARRIERE</text>
+
+                <!-- Windshield (left) -->
+                <path d="M50,68 Q35,72 32,100 Q35,128 50,132 L90,138 Q92,130 92,100 Q92,70 90,62 Z" fill="rgba(255,255,255,0.3)" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+
+                <!-- Rear window (right) -->
+                <path d="M350,70 Q358,74 360,100 Q358,126 350,130 L320,136 Q318,128 318,100 Q318,72 320,64 Z" fill="rgba(255,255,255,0.3)" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+
+                <!-- Side mirrors -->
+                <ellipse cx="110" cy="32" rx="5" ry="8" fill="var(--bg-separator)"/>
+                <ellipse cx="110" cy="168" rx="5" ry="8" fill="var(--bg-separator)"/>
+
+                <!-- Wheels -->
+                <rect x="85" y="30" width="30" height="12" rx="4" fill="var(--text-secondary)" opacity="0.3"/>
+                <rect x="85" y="158" width="30" height="12" rx="4" fill="var(--text-secondary)" opacity="0.3"/>
+                <rect x="280" y="30" width="30" height="12" rx="4" fill="var(--text-secondary)" opacity="0.3"/>
+                <rect x="280" y="158" width="30" height="12" rx="4" fill="var(--text-secondary)" opacity="0.3"/>
+              </svg>
+            </div>
+            <div class="car-problem-label" id="car-problem-text"></div>
+          </div>
+          <div class="iphone-tab-bar">
+            <div class="tab-item active"><div class="tab-icon">📢</div>Signaler</div>
+            <div class="tab-item"><div class="tab-icon">🚗</div>Plaques</div>
+            <div class="tab-item"><div class="tab-icon">📋</div>Historique</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Standalone car large + legend -->
+      <div class="car-demo-standalone">
+        <h3>Mapping zone → probleme</h3>
+        <p>Chaque zone de la voiture correspond a un type de probleme</p>
+        <div class="car-large" style="max-width:420px; margin:0 auto;">
+          <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:auto;">
+            <defs>
+              <clipPath id="carClip2">
+                <path d="M20,60 Q0,65 0,100 Q0,135 20,140 L80,155 Q100,160 120,160 L300,160 Q340,160 360,155 L385,145 Q400,140 400,100 Q400,60 385,55 L360,45 Q340,40 300,40 L120,40 Q100,40 80,45 Z"/>
+              </clipPath>
+            </defs>
+
+            <path d="M20,60 Q0,65 0,100 Q0,135 20,140 L80,155 Q100,160 120,160 L300,160 Q340,160 360,155 L385,145 Q400,140 400,100 Q400,60 385,55 L360,45 Q340,40 300,40 L120,40 Q100,40 80,45 Z" fill="none" stroke="var(--bg-separator)" stroke-width="2"/>
+
+            <!-- Front zone -->
+            <rect x="0" y="40" width="133" height="120" clip-path="url(#carClip2)" fill="#2D1B4E" opacity="0.2"/>
+            <text x="65" y="95" text-anchor="middle" fill="var(--accent-primary)" font-size="24">💡</text>
+            <text x="65" y="116" text-anchor="middle" fill="var(--accent-primary)" font-size="10" font-weight="600">PHARES</text>
+
+            <line x1="133" y1="40" x2="133" y2="160" stroke="var(--bg-separator)" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+            <!-- Middle zone -->
+            <rect x="133" y="40" width="134" height="120" clip-path="url(#carClip2)" fill="#3D2B6B" opacity="0.15"/>
+            <text x="200" y="95" text-anchor="middle" fill="var(--accent-interactive)" font-size="24">🪟</text>
+            <text x="200" y="116" text-anchor="middle" fill="var(--accent-interactive)" font-size="10" font-weight="600">VITRES</text>
+
+            <line x1="267" y1="40" x2="267" y2="160" stroke="var(--bg-separator)" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+            <!-- Rear zone -->
+            <rect x="267" y="40" width="133" height="120" clip-path="url(#carClip2)" fill="#4A3580" opacity="0.15"/>
+            <text x="333" y="95" text-anchor="middle" fill="var(--accent-subtle)" font-size="24">🅿️</text>
+            <text x="333" y="116" text-anchor="middle" fill="var(--accent-subtle)" font-size="10" font-weight="600">STATIONNEMENT</text>
+
+            <!-- Windshield -->
+            <path d="M50,68 Q35,72 32,100 Q35,128 50,132 L90,138 Q92,130 92,100 Q92,70 90,62 Z" fill="rgba(255,255,255,0.3)" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+            <path d="M350,70 Q358,74 360,100 Q358,126 350,130 L320,136 Q318,128 318,100 Q318,72 320,64 Z" fill="rgba(255,255,255,0.3)" stroke="rgba(255,255,255,0.5)" stroke-width="1"/>
+
+            <!-- Mirrors & wheels -->
+            <ellipse cx="110" cy="32" rx="5" ry="8" fill="var(--bg-separator)"/>
+            <ellipse cx="110" cy="168" rx="5" ry="8" fill="var(--bg-separator)"/>
+            <rect x="85" y="30" width="30" height="12" rx="4" fill="var(--text-secondary)" opacity="0.3"/>
+            <rect x="85" y="158" width="30" height="12" rx="4" fill="var(--text-secondary)" opacity="0.3"/>
+            <rect x="280" y="30" width="30" height="12" rx="4" fill="var(--text-secondary)" opacity="0.3"/>
+            <rect x="280" y="158" width="30" height="12" rx="4" fill="var(--text-secondary)" opacity="0.3"/>
+          </svg>
+        </div>
+        <div class="zone-legend">
+          <div class="zone-legend-item">
+            <div class="zone-legend-dot" style="background:#2D1B4E">1</div>
+            <div><strong>Avant</strong> — Phares allumes, clignotants</div>
+          </div>
+          <div class="zone-legend-item">
+            <div class="zone-legend-dot" style="background:#3D2B6B">2</div>
+            <div><strong>Milieu</strong> — Vitre ouverte, toit ouvrant, objet sur le toit</div>
+          </div>
+          <div class="zone-legend-item">
+            <div class="zone-legend-dot" style="background:#4A3580">3</div>
+            <div><strong>Arriere</strong> — Mal gare, coffre ouvert, feux arriere</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Flow comparison -->
+    <div class="flow-compare">
+      <div class="flow-col">
+        <h3>Option A : Boutons classiques</h3>
+        <div class="flow-steps">
+          <div class="flow-step">Saisir la plaque</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step">Choisir parmi 4 boutons</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step">Envoye !</div>
+        </div>
+      </div>
+      <div class="flow-col">
+        <h3>Option B : Vue voiture top-down</h3>
+        <div class="flow-steps">
+          <div class="flow-step">Saisir la plaque</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step highlight">Taper sur la zone de la voiture</div>
+          <div class="flow-arrow">↓</div>
+          <div class="flow-step">Envoye !</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ ECRANS SECONDAIRES ══════════ -->
+  <div class="section">
+    <h2>Ecrans secondaires</h2>
+    <div class="phones-row">
+
+      <!-- Phone 4: Mes Plaques -->
+      <div class="phone-wrapper">
+        <div class="phone-label">Mes Plaques</div>
+        <div class="iphone">
+          <div class="iphone-notch"></div>
+          <div class="iphone-screen">
+            <div class="screen-title">Mes plaques</div>
+            <div class="plates-screen">
+              <div class="plate-card">
+                <div class="plate-card-lock">🔒</div>
+                <div class="plate-card-info">
+                  <div class="plate-card-number">AB-1••-CD</div>
+                  <div class="plate-card-status">✓ Chiffree et protegee</div>
+                </div>
+              </div>
+              <div class="plate-card">
+                <div class="plate-card-lock">🔒</div>
+                <div class="plate-card-info">
+                  <div class="plate-card-number">EF-4••-GH</div>
+                  <div class="plate-card-status">✓ Chiffree et protegee</div>
+                </div>
+              </div>
+              <div class="add-plate-btn">+ Ajouter une plaque</div>
+            </div>
+          </div>
+          <div class="iphone-tab-bar">
+            <div class="tab-item">
+              <div class="tab-icon">📢</div>
+              Signaler
+            </div>
+            <div class="tab-item active">
+              <div class="tab-icon">🚗</div>
+              Plaques
+            </div>
+            <div class="tab-item">
+              <div class="tab-icon">📋</div>
+              Historique
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phone 5: Plaque non enregistree -->
+      <div class="phone-wrapper">
+        <div class="phone-label">Plaque non enregistree</div>
+        <div class="iphone">
+          <div class="iphone-notch"></div>
+          <div class="iphone-screen">
+            <div class="unreg-screen">
+              <div class="unreg-icon">📝</div>
+              <div class="unreg-title">Plaque non enregistree</div>
+              <div class="unreg-sub">Le proprietaire de <strong>XY-789-ZZ</strong> n'utilise pas encore TagYourCar.</div>
+              <div class="unreg-sub" style="font-size:12px; color:var(--accent-interactive)">Vous pouvez laisser une carte pare-brise pour l'inviter a rejoindre la communaute !</div>
+              <button class="unreg-btn">🖨 Generer une carte pare-brise</button>
+            </div>
+          </div>
+          <div class="iphone-tab-bar">
+            <div class="tab-item active">
+              <div class="tab-icon">📢</div>
+              Signaler
+            </div>
+            <div class="tab-item">
+              <div class="tab-icon">🚗</div>
+              Plaques
+            </div>
+            <div class="tab-item">
+              <div class="tab-icon">📋</div>
+              Historique
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phone 6: Onboarding -->
+      <div class="phone-wrapper">
+        <div class="phone-label">Inscription</div>
+        <div class="iphone">
+          <div class="iphone-notch"></div>
+          <div class="iphone-screen" style="justify-content: center; gap: 16px; padding: 20px 24px;">
+            <div style="text-align:center;">
+              <div style="font-size:48px; margin-bottom:8px;">🚗</div>
+              <div style="font-size:24px; font-weight:700; color:var(--accent-primary); margin-bottom:4px;">TagYourCar</div>
+              <div style="font-size:13px; color:var(--text-secondary); line-height:1.5;">Prevenez les automobilistes<br>quand ca compte.</div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px; width:100%; margin-top:16px;">
+              <button class="btn btn-primary" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px;">
+                 Continuer avec Apple
+              </button>
+              <button class="btn btn-secondary" style="width:100%; display:flex; align-items:center; justify-content:center; gap:8px;">
+                ✉️ Continuer avec Email
+              </button>
+            </div>
+            <div style="text-align:center; margin-top:12px;">
+              <div style="font-size:11px; color:var(--text-placeholder); line-height:1.5; display:flex; align-items:center; justify-content:center; gap:4px;">
+                🔒 Vos donnees sont chiffrees et protegees
+              </div>
+            </div>
+          </div>
+          <div class="iphone-tab-bar" style="opacity:0"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════ TYPOGRAPHIE ══════════ -->
+  <div class="section">
+    <h2>Systeme typographique</h2>
+    <div class="typo-showcase">
+      <div class="typo-row">
+        <div class="typo-meta">title.large<br>34pt Bold</div>
+        <div class="typo-sample t-title-large">TagYourCar</div>
+      </div>
+      <div class="typo-row">
+        <div class="typo-meta">title.screen<br>28pt Semibold</div>
+        <div class="typo-sample t-title-screen">Signaler un probleme</div>
+      </div>
+      <div class="typo-row">
+        <div class="typo-meta">title.section<br>20pt Semibold</div>
+        <div class="typo-sample t-title-section">Mes plaques</div>
+      </div>
+      <div class="typo-row">
+        <div class="typo-meta">body.large<br>17pt Regular</div>
+        <div class="typo-sample t-body-large">Le proprietaire sera notifie dans les secondes.</div>
+      </div>
+      <div class="typo-row">
+        <div class="typo-meta">body.default<br>15pt Regular</div>
+        <div class="typo-sample t-body-default">Quelqu'un vous signale que vos phares sont restes allumes.</div>
+      </div>
+      <div class="typo-row">
+        <div class="typo-meta">caption<br>13pt Regular</div>
+        <div class="typo-sample t-caption">Il y a 2 minutes · Chiffree et protegee</div>
+      </div>
+      <div class="typo-row">
+        <div class="typo-meta">plate<br>24pt Mono Medium</div>
+        <div class="typo-sample t-plate">AB-123-CD</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ BOUTONS ══════════ -->
+  <div class="section">
+    <h2>Composants boutons</h2>
+    <div class="buttons-row">
+      <button class="btn btn-primary">Envoyer</button>
+      <button class="btn btn-secondary">Annuler</button>
+      <button class="btn btn-success">✓ Envoye !</button>
+      <button class="btn btn-ghost">Voir l'historique</button>
+    </div>
+  </div>
+
+  <!-- ══════════ ESPACEMENT ══════════ -->
+  <div class="section">
+    <h2>Grille d'espacement (8pt)</h2>
+    <div class="spacing-demo">
+      <div class="spacing-block">
+        <div class="spacing-visual" style="width:4px; height:40px;"></div>
+        <div class="spacing-label">xs</div>
+        <div class="spacing-value">4pt</div>
+      </div>
+      <div class="spacing-block">
+        <div class="spacing-visual" style="width:8px; height:40px;"></div>
+        <div class="spacing-label">sm</div>
+        <div class="spacing-value">8pt</div>
+      </div>
+      <div class="spacing-block">
+        <div class="spacing-visual" style="width:16px; height:40px;"></div>
+        <div class="spacing-label">md</div>
+        <div class="spacing-value">16pt</div>
+      </div>
+      <div class="spacing-block">
+        <div class="spacing-visual" style="width:24px; height:40px;"></div>
+        <div class="spacing-label">lg</div>
+        <div class="spacing-value">24pt</div>
+      </div>
+      <div class="spacing-block">
+        <div class="spacing-visual" style="width:32px; height:40px;"></div>
+        <div class="spacing-label">xl</div>
+        <div class="spacing-value">32pt</div>
+      </div>
+      <div class="spacing-block">
+        <div class="spacing-visual" style="width:48px; height:40px;"></div>
+        <div class="spacing-label">xxl</div>
+        <div class="spacing-value">48pt</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const zoneConfig = {
+    front:  { label: '💡 Phares allumes', opacity: 0.35 },
+    middle: { label: '🪟 Vitre ouverte',  opacity: 0.35 },
+    rear:   { label: '🅿️ Mal gare',       opacity: 0.35 }
+  };
+
+  function selectZone(zone) {
+    // Reset all zones
+    document.getElementById('zone-front').setAttribute('opacity', '0.15');
+    document.getElementById('zone-middle').setAttribute('opacity', '0.1');
+    document.getElementById('zone-rear').setAttribute('opacity', '0.1');
+
+    // Highlight selected
+    const el = document.getElementById('zone-' + zone);
+    el.setAttribute('opacity', zoneConfig[zone].opacity);
+    el.classList.add('active');
+
+    // Update label
+    document.getElementById('car-problem-text').textContent = zoneConfig[zone].label;
+
+    // Brief animation
+    document.getElementById('car-problem-text').style.transform = 'scale(1.1)';
+    setTimeout(() => {
+      document.getElementById('car-problem-text').style.transform = 'scale(1)';
+    }, 150);
+  }
+</script>
+
+</body>
+</html>

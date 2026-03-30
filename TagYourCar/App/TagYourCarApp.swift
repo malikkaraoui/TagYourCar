@@ -1,0 +1,21 @@
+import SwiftUI
+import FirebaseCore
+
+@main
+struct TagYourCarApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @StateObject private var authService = AuthService()
+
+    init() {
+        if FirebaseApp.app() == nil {
+            FirebaseApp.configure()
+        }
+    }
+
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
+                .environmentObject(authService)
+        }
+    }
+}

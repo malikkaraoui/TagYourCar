@@ -1,0 +1,32 @@
+# Xcode
+*.xcodeproj/
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+*.xcworkspace/
+xcuserdata/
+*.xcuserstate
+DerivedData/
+
+# Build
+.build/
+build/
+
+# SPM
+.swiftpm/
+Package.resolved
+
+# Firebase
+GoogleService-Info.plist
+.firebaserc
+
+# OS
+.DS_Store
+*.swp
+*~
+
+# IDE
+.vscode/settings.json
+
+# Secrets
+*.env
+*.env.local

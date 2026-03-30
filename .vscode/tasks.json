@@ -1,0 +1,33 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build iOS Simulator",
+      "type": "shell",
+      "command": "make build",
+      "group": { "kind": "build", "isDefault": true }
+    },
+    {
+      "label": "Run iOS Simulator",
+      "type": "shell",
+      "command": "make run",
+      "group": "build"
+    },
+    {
+      "label": "Test",
+      "type": "shell",
+      "command": "make test",
+      "group": "test"
+    },
+    {
+      "label": "Generate Xcode Project",
+      "type": "shell",
+      "command": "make generate"
+    },
+    {
+      "label": "Clean",
+      "type": "shell",
+      "command": "make clean"
+    }
+  ]
+}
