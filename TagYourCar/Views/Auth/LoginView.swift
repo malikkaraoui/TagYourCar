@@ -1,4 +1,7 @@
 import SwiftUI
+import AuthenticationServices
+import GoogleSignIn
+import FirebaseAuth
 
 struct LoginView: View {
     @EnvironmentObject var authService: AuthService
@@ -19,6 +22,93 @@ struct LoginView: View {
                     .font(Theme.Typography.display)
                     .foregroundStyle(Theme.Colors.accentPrimary)
 
+                // Social Sign-In Buttons
+                VStack(spacing: Theme.Spacing.sm) {
+                    SignInWithAppleButton(.signIn) { request in
+                        let (_, hashedNonce) = authService.prepareAppleSignIn()
+                        request.requestedScopes = [.fullName, .email]
+                        request.nonce = hashedNonce
+                    } onCompletion: { result in
+                        Task {
+                            switch result {
+                            case .success(let authorization):
+                                do {
+                                    try await authService.handleAppleSignIn(authorization: authorization)
+                                } catch {
+                                    viewModel.errorMessage = "Connexion Apple echouee."
+                                }
+                            case .failure:
+                                break // Annulation silencieuse
+                            }
+                        }
+                    }
+                    .signInWithAppleButtonStyle(.black)
+                    .frame(height: 50)
+                    .cornerRadius(Theme.Radius.md)
+
+                    Button {
+                        Task {
+                            do {
+                                try await authService.signInWithGoogle()
+                            } catch let error as GIDSignInError where error.code == .canceled {
+                                return // Annulation silencieuse
+                            } catch {
+                                viewModel.errorMessage = "Connexion Google echouee."
+                            }
+                        }
+                    } label: {
+                        HStack {
+                            Image(systemName: "g.circle.fill")
+                            Text("Continuer avec Google")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(Theme.Spacing.md)
+                        .background(Theme.Colors.bgCard)
+                        .foregroundStyle(Theme.Colors.textPrimary)
+                        .cornerRadius(Theme.Radius.md)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: Theme.Radius.md)
+                                .stroke(Theme.Colors.bgSeparator, lineWidth: 1)
+                        )
+                    }
+
+                    Button {
+                        Task {
+                            do {
+                                try await authService.signInWithGitHub()
+                            } catch {
+                                let nsError = error as NSError
+                                if nsError.code == AuthErrorCode.webContextCancelled.rawValue || nsError.code == AuthErrorCode.webContextAlreadyPresented.rawValue {
+                                    return // Annulation silencieuse
+                                }
+                                viewModel.errorMessage = "Connexion GitHub echouee."
+                            }
+                        }
+                    } label: {
+                        HStack {
+                            Image(systemName: "chevron.left.forwardslash.chevron.right")
+                            Text("Continuer avec GitHub")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(Theme.Spacing.md)
+                        .background(Theme.Colors.bgCard)
+                        .foregroundStyle(Theme.Colors.textPrimary)
+                        .cornerRadius(Theme.Radius.md)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: Theme.Radius.md)
+                                .stroke(Theme.Colors.bgSeparator, lineWidth: 1)
+                        )
+                    }
+                }
+
+                // Separator
+                HStack {
+                    Rectangle().frame(height: 1).foregroundStyle(Theme.Colors.bgSeparator)
+                    Text("ou").font(Theme.Typography.caption).foregroundStyle(Theme.Colors.textSecondary)
+                    Rectangle().frame(height: 1).foregroundStyle(Theme.Colors.bgSeparator)
+                }
+
+                // Email fields
                 VStack(spacing: Theme.Spacing.md) {
                     TextField("Email", text: $viewModel.email)
                         .textContentType(.emailAddress)
