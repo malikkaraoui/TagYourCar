@@ -2,11 +2,12 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var authService: AuthService
+    @StateObject private var plateService = PlateService()
 
     var body: some View {
         Group {
             if authService.isAuthenticated {
-                HomeView()
+                TabBarView(plateService: plateService)
             } else {
                 LoginView(authService: authService)
             }
@@ -14,43 +15,44 @@ struct ContentView: View {
     }
 }
 
-// Placeholder — sera remplace par le TabBar dans les stories suivantes
-struct HomeView: View {
+struct TabBarView: View {
     @EnvironmentObject var authService: AuthService
+    let plateService: PlateService
 
     var body: some View {
-        VStack(spacing: Theme.Spacing.lg) {
-            Spacer()
+        TabView {
+            ReportPlaceholderView()
+                .tabItem {
+                    Label("Signaler", systemImage: "exclamationmark.triangle")
+                }
 
-            Text("TagYourCar")
-                .font(Theme.Typography.display)
-                .foregroundStyle(Theme.Colors.accentPrimary)
+            PlateListView(plateService: plateService)
+                .tabItem {
+                    Label("Mes plaques", systemImage: "car.fill")
+                }
+        }
+        .tint(Theme.Colors.accentPrimary)
+    }
+}
 
-            if let user = authService.currentUser {
-                Text("Bienvenue, \(user.displayName)")
+// Placeholder — sera remplace dans Epic 3
+struct ReportPlaceholderView: View {
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: Theme.Spacing.lg) {
+                Spacer()
+                Image(systemName: "exclamationmark.triangle")
+                    .font(.system(size: 64))
+                    .foregroundStyle(Theme.Colors.accentMuted)
+                Text("Signalement")
+                    .font(Theme.Typography.h1)
+                    .foregroundStyle(Theme.Colors.textPrimary)
+                Text("Bientot disponible")
                     .font(Theme.Typography.body)
                     .foregroundStyle(Theme.Colors.textSecondary)
+                Spacer()
             }
-
-            Spacer()
-
-            Button {
-                try? authService.signOut()
-            } label: {
-                Text("Se deconnecter")
-                    .frame(maxWidth: .infinity)
-                    .padding(Theme.Spacing.md)
-                    .background(Theme.Colors.bgCard)
-                    .foregroundStyle(Theme.Colors.error)
-                    .cornerRadius(Theme.Radius.md)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: Theme.Radius.md)
-                            .stroke(Theme.Colors.bgSeparator, lineWidth: 1)
-                    )
-            }
-            .padding(.bottom, Theme.Spacing.xl)
+            .navigationTitle("Signaler")
         }
-        .padding(.horizontal, Theme.Spacing.xl)
-        .background(Theme.Colors.bgPrimary.ignoresSafeArea())
     }
 }
