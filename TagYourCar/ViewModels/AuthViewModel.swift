@@ -11,10 +11,10 @@ final class AuthViewModel: ObservableObject {
     @Published var state: ViewState = .idle
     @Published var errorMessage: String?
 
-    private let authService: AuthService
+    private let authService: any AuthServiceProtocol
     private let logger = Logger(subsystem: "com.tagyourcar", category: "AuthViewModel")
 
-    init(authService: AuthService) {
+    init(authService: any AuthServiceProtocol) {
         self.authService = authService
     }
 
