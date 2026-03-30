@@ -8,12 +8,17 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: macos-latest
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 
-      - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode.app
+      - name: Select latest Xcode
+        run: |
+          XCODE_PATH=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
+          echo "Using $XCODE_PATH"
+          sudo xcode-select -s "$XCODE_PATH"
+          xcodebuild -version
+          swift --version
 
       - name: Install XcodeGen
         run: brew install xcodegen
@@ -23,17 +28,20 @@ jobs:
 
       - name: Build
         run: |
+          SIMULATOR=$(xcrun simctl list devices available | grep "iPhone" | head -1 | sed 's/(.*//' | xargs)
+          echo "Using simulator: $SIMULATOR"
           xcodebuild build \
             -project TagYourCar.xcodeproj \
             -scheme TagYourCar \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            -destination "platform=iOS Simulator,name=$SIMULATOR" \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO
 
       - name: Test
         run: |
+          SIMULATOR=$(xcrun simctl list devices available | grep "iPhone" | head -1 | sed 's/(.*//' | xargs)
           xcodebuild test \
             -project TagYourCar.xcodeproj \
             -scheme TagYourCar \
-            -destination 'platform=iOS Simulator,name=iPhone 16 Pro' \
+            -destination "platform=iOS Simulator,name=$SIMULATOR" \
             CODE_SIGNING_ALLOWED=NO

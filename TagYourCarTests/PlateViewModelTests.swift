@@ -155,4 +155,43 @@ final class PlateViewModelTests: XCTestCase {
     func testInitialShowAddPlateFalse() {
         XCTAssertFalse(viewModel.showAddPlate)
     }
+
+    // =========================================================
+    // MARK: - Suppression (Story 2.3)
+    // =========================================================
+
+    func testCanAddPlateAfterDeletionBelowLimit() {
+        // 5 plaques = limite atteinte
+        viewModel.plates = (0..<5).map { i in
+            Plate(id: "hash\(i)", ownerUid: "uid", addedAt: Date(), verified: false)
+        }
+        XCTAssertTrue(viewModel.hasReachedLimit)
+        XCTAssertFalse(viewModel.canAddPlate)
+
+        // Supprime une plaque → 4, plus sous la limite
+        viewModel.plates.removeLast()
+        viewModel.plateInput = "AB-123-CD"
+        XCTAssertFalse(viewModel.hasReachedLimit)
+        XCTAssertTrue(viewModel.canAddPlate)
+    }
+
+    func testEmptyStateAfterDeletingAllPlates() {
+        viewModel.plates = [
+            Plate(id: "hash1", ownerUid: "uid", addedAt: Date(), verified: false)
+        ]
+        XCTAssertFalse(viewModel.plates.isEmpty)
+
+        viewModel.plates.removeAll()
+        XCTAssertTrue(viewModel.plates.isEmpty)
+    }
+
+    func testPlateCountDecreasesAfterDeletion() {
+        viewModel.plates = (0..<3).map { i in
+            Plate(id: "hash\(i)", ownerUid: "uid", addedAt: Date(), verified: false)
+        }
+        XCTAssertEqual(viewModel.plates.count, 3)
+
+        viewModel.plates.remove(at: 1)
+        XCTAssertEqual(viewModel.plates.count, 2)
+    }
 }

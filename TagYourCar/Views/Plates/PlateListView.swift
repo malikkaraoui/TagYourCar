@@ -3,6 +3,8 @@ import SwiftUI
 struct PlateListView: View {
     @EnvironmentObject var authService: AuthService
     @StateObject private var viewModel: PlateViewModel
+    @State private var plateToDelete: Plate?
+    @State private var showDeleteConfirmation = false
 
     init(plateService: PlateService) {
         _viewModel = StateObject(wrappedValue: PlateViewModel(plateService: plateService))
@@ -80,6 +82,14 @@ struct PlateListView: View {
                     PlateCard(plate: plate)
                         .listRowInsets(EdgeInsets(top: Theme.Spacing.xs, leading: Theme.Spacing.md, bottom: Theme.Spacing.xs, trailing: Theme.Spacing.md))
                         .listRowBackground(Color.clear)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .destructive) {
+                                plateToDelete = plate
+                                showDeleteConfirmation = true
+                            } label: {
+                                Label("Supprimer", systemImage: "trash")
+                            }
+                        }
                 }
             } footer: {
                 Text("\(viewModel.plates.count)/\(PlateViewModel.maxPlates) plaques")
@@ -88,5 +98,20 @@ struct PlateListView: View {
             }
         }
         .listStyle(.plain)
+        .alert("Supprimer cette plaque ?", isPresented: $showDeleteConfirmation) {
+            Button("Annuler", role: .cancel) {
+                plateToDelete = nil
+            }
+            Button("Supprimer", role: .destructive) {
+                if let plate = plateToDelete, let uid = authService.currentUser?.uid {
+                    Task {
+                        await viewModel.deletePlate(plate.id, for: uid)
+                        plateToDelete = nil
+                    }
+                }
+            }
+        } message: {
+            Text("Cette action est irreversible. Vous ne recevrez plus de notifications pour ce vehicule.")
+        }
     }
 }

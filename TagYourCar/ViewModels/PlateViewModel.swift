@@ -71,6 +71,22 @@ final class PlateViewModel: ObservableObject {
         }
     }
 
+    func deletePlate(_ plateText: String, for uid: String) async {
+        state = .loading
+        errorMessage = nil
+
+        do {
+            try await plateService.deletePlate(plateText, for: uid)
+            plates = plateService.plates
+            state = .loaded
+            logger.info("Plate deleted successfully")
+        } catch {
+            state = .error("Erreur lors de la suppression.")
+            errorMessage = "Erreur lors de la suppression. Reessayez."
+            logger.error("Failed to delete plate: \(error.localizedDescription)")
+        }
+    }
+
     func resetInput() {
         plateInput = ""
         errorMessage = nil

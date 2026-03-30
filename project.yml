@@ -36,7 +36,7 @@ targets:
         INFOPLIST_KEY_UILaunchScreen_Generation: true
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait"
         INFOPLIST_KEY_CFBundleDisplayName: TagYourCar
-        SWIFT_STRICT_CONCURRENCY: complete
+        SWIFT_STRICT_CONCURRENCY: targeted
     dependencies:
       - package: Firebase
         product: FirebaseAuth

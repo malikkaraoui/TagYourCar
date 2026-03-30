@@ -50,8 +50,8 @@ development_status:
   # Epic 2: Profil & Gestion de Plaques
   epic-2: in-progress
   2-1-cloud-functions-hashage-verification: review
-  2-2-ecran-mes-plaques-ajout-plaque: in-progress
-  2-3-suppression-de-plaque: backlog
+  2-2-ecran-mes-plaques-ajout-plaque: review
+  2-3-suppression-de-plaque: in-progress
   2-4-profil-parametres: backlog
   epic-2-retrospective: optional
 
