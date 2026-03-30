@@ -2,7 +2,7 @@ import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore } from "firebase-admin/firestore";
 import * as crypto from "crypto";
 
-export const verifyOwnership = onCall(async (request) => {
+export const verifyOwnership = onCall({ secrets: ["PLATE_HASH_SALT"] }, async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Authentification requise.");
   }

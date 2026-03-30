@@ -4,7 +4,7 @@ import * as crypto from "crypto";
 
 const MAX_PLATES_PER_USER = 5;
 
-export const hashPlate = onCall(async (request) => {
+export const hashPlate = onCall({ secrets: ["PLATE_HASH_SALT"] }, async (request) => {
   // Auth check
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Authentification requise.");
