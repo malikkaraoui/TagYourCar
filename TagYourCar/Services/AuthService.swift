@@ -13,23 +13,37 @@ final class AuthService: ObservableObject {
     @Published var isAuthenticated = false
     @Published var needsCGUAcceptance = false
 
-    private lazy var auth = Auth.auth()
-    private lazy var db = Firestore.firestore()
+    private lazy var auth: Auth? = {
+        guard FirebaseApp.app() != nil else { return nil }
+        return Auth.auth()
+    }()
+    private lazy var db: Firestore? = {
+        guard FirebaseApp.app() != nil else { return nil }
+        return Firestore.firestore()
+    }()
     private let logger = Logger(subsystem: "com.tagyourcar", category: "AuthService")
     private nonisolated(unsafe) var authStateListener: AuthStateDidChangeListenerHandle?
     private var currentNonce: String?
-    private let isFirebaseConfigured: Bool
+    private var isFirebaseConfigured: Bool {
+        FirebaseApp.app() != nil
+    }
 
     init() {
-        isFirebaseConfigured = FirebaseApp.app() != nil
         if isFirebaseConfigured {
             listenToAuthState()
+        } else {
+            logger.warning("Firebase non configure — authentification desactivee")
         }
     }
 
     // MARK: - Auth State Listener
 
     private func listenToAuthState() {
+        guard let auth else {
+            logger.warning("Auth indisponible — listener non initialise")
+            return
+        }
+
         authStateListener = auth.addStateDidChangeListener { [weak self] _, firebaseUser in
             Task { @MainActor [weak self] in
                 guard let self else { return }
@@ -47,6 +61,11 @@ final class AuthService: ObservableObject {
     // MARK: - Email Sign Up
 
     func signUp(email: String, password: String, firstName: String, lastName: String) async throws {
+        guard let auth, let db else {
+            logger.warning("Tentative d'inscription sans configuration Firebase")
+            throw TagYourCarError.unknownError
+        }
+
         let result = try await auth.createUser(withEmail: email, password: password)
         let displayName = "\(firstName) \(lastName)"
 
@@ -69,6 +88,11 @@ final class AuthService: ObservableObject {
     // MARK: - Email Sign In
 
     func signIn(email: String, password: String) async throws {
+        guard let auth else {
+            logger.warning("Tentative de connexion sans configuration Firebase")
+            throw TagYourCarError.unknownError
+        }
+
         let result = try await auth.signIn(withEmail: email, password: password)
         await fetchOrCreateUser(firebaseUser: result.user)
         logger.info("User signed in via email: \(result.user.uid)")
@@ -84,6 +108,11 @@ final class AuthService: ObservableObject {
     }
 
     func handleAppleSignIn(authorization: ASAuthorization) async throws {
+        guard let auth else {
+            logger.warning("Tentative de connexion Apple sans configuration Firebase")
+            throw TagYourCarError.unknownError
+        }
+
         guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential,
               let appleIDToken = appleIDCredential.identityToken,
               let idTokenString = String(data: appleIDToken, encoding: .utf8),
@@ -105,6 +134,11 @@ final class AuthService: ObservableObject {
     // MARK: - Google Sign-In
 
     func signInWithGoogle() async throws {
+        guard let auth else {
+            logger.warning("Tentative de connexion Google sans configuration Firebase")
+            throw TagYourCarError.unknownError
+        }
+
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let rootViewController = windowScene.windows.first?.rootViewController else {
             throw TagYourCarError.unknownError
@@ -128,6 +162,11 @@ final class AuthService: ObservableObject {
     // MARK: - GitHub Sign-In
 
     func signInWithGitHub() async throws {
+        guard let auth else {
+            logger.warning("Tentative de connexion GitHub sans configuration Firebase")
+            throw TagYourCarError.unknownError
+        }
+
         let provider = OAuthProvider(providerID: "github.com")
 
         let credential = try await provider.credential(with: nil)
@@ -139,7 +178,12 @@ final class AuthService: ObservableObject {
     // MARK: - Sign Out
 
     func signOut() throws {
-        try auth.signOut()
+        if let auth {
+            try auth.signOut()
+        } else {
+            logger.warning("Sign out sans configuration Firebase")
+        }
+
         GIDSignIn.sharedInstance.signOut()
         currentUser = nil
         isAuthenticated = false
@@ -149,6 +193,11 @@ final class AuthService: ObservableObject {
     // MARK: - Fetch or Create User
 
     private func fetchOrCreateUser(firebaseUser: FirebaseAuth.User) async {
+        guard let db else {
+            logger.warning("Firestore indisponible — utilisateur non synchronise")
+            return
+        }
+
         do {
             let document = try await db.collection("users").document(firebaseUser.uid).getDocument()
             if document.exists {

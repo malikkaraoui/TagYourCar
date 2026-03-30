@@ -1,4 +1,5 @@
 import Foundation
+import FirebaseCore
 import FirebaseFirestore
 import FirebaseFunctions
 import os
@@ -7,13 +8,30 @@ import os
 final class PlateService: ObservableObject {
     @Published var plates: [Plate] = []
 
-    private lazy var db = Firestore.firestore()
-    private lazy var functions = Functions.functions()
+    private lazy var db: Firestore? = {
+        guard FirebaseApp.app() != nil else { return nil }
+        return Firestore.firestore()
+    }()
+    private lazy var functions: Functions? = {
+        guard FirebaseApp.app() != nil else { return nil }
+        return Functions.functions()
+    }()
     private let logger = Logger(subsystem: "com.tagyourcar", category: "PlateService")
+
+    init() {
+        if FirebaseApp.app() == nil {
+            logger.warning("Firebase non configure — PlateService fonctionne en mode degrade")
+        }
+    }
 
     // MARK: - Add Plate
 
     func addPlate(_ plateText: String, for uid: String) async throws {
+        guard let functions else {
+            logger.warning("Ajout de plaque impossible sans Firebase Functions")
+            throw TagYourCarError.unknownError
+        }
+
         let result = try await functions.httpsCallable("hashPlate").call(["plate": plateText])
 
         guard let data = result.data as? [String: Any],
@@ -28,6 +46,11 @@ final class PlateService: ObservableObject {
     // MARK: - Delete Plate
 
     func deletePlate(_ plateText: String, for uid: String) async throws {
+        guard let functions else {
+            logger.warning("Suppression de plaque impossible sans Firebase Functions")
+            throw TagYourCarError.unknownError
+        }
+
         let result = try await functions.httpsCallable("deletePlate").call(["plate": plateText])
 
         guard let data = result.data as? [String: Any],
@@ -42,6 +65,11 @@ final class PlateService: ObservableObject {
     // MARK: - Verify Ownership
 
     func verifyOwnership(_ plateText: String) async throws -> Bool {
+        guard let functions else {
+            logger.warning("Verification impossible sans Firebase Functions")
+            throw TagYourCarError.unknownError
+        }
+
         let result = try await functions.httpsCallable("verifyOwnership").call(["plate": plateText])
 
         guard let data = result.data as? [String: Any],
@@ -55,6 +83,12 @@ final class PlateService: ObservableObject {
     // MARK: - Fetch User Plates
 
     func fetchPlates(for uid: String) async {
+        guard let db else {
+            plates = []
+            logger.warning("Lecture des plaques ignoree — Firestore non configure")
+            return
+        }
+
         do {
             let snapshot = try await db.collection("plates")
                 .whereField("ownerUid", isEqualTo: uid)
