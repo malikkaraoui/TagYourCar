@@ -2,6 +2,7 @@ import Foundation
 import AuthenticationServices
 import CryptoKit
 import FirebaseAuth
+import FirebaseCore
 import FirebaseFirestore
 import GoogleSignIn
 import os
@@ -12,14 +13,18 @@ final class AuthService: ObservableObject {
     @Published var isAuthenticated = false
     @Published var needsCGUAcceptance = false
 
-    private let auth = Auth.auth()
-    private let db = Firestore.firestore()
+    private lazy var auth = Auth.auth()
+    private lazy var db = Firestore.firestore()
     private let logger = Logger(subsystem: "com.tagyourcar", category: "AuthService")
     private nonisolated(unsafe) var authStateListener: AuthStateDidChangeListenerHandle?
     private var currentNonce: String?
+    private let isFirebaseConfigured: Bool
 
     init() {
-        listenToAuthState()
+        isFirebaseConfigured = FirebaseApp.app() != nil
+        if isFirebaseConfigured {
+            listenToAuthState()
+        }
     }
 
     // MARK: - Auth State Listener

@@ -7,8 +7,8 @@ import os
 final class PlateService: ObservableObject {
     @Published var plates: [Plate] = []
 
-    private let db = Firestore.firestore()
-    private let functions = Functions.functions()
+    private lazy var db = Firestore.firestore()
+    private lazy var functions = Functions.functions()
     private let logger = Logger(subsystem: "com.tagyourcar", category: "PlateService")
 
     // MARK: - Add Plate
