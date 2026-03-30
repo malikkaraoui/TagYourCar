@@ -175,6 +175,32 @@ final class AuthService: ObservableObject {
         logger.info("User signed in via GitHub: \(result.user.uid)")
     }
 
+    // MARK: - Update Profile
+
+    func updateProfile(firstName: String, lastName: String) async throws {
+        guard let auth, let db, let user = auth.currentUser else {
+            throw TagYourCarError.unknownError
+        }
+
+        let displayName = "\(firstName) \(lastName)"
+        let changeRequest = user.createProfileChangeRequest()
+        changeRequest.displayName = displayName
+        try await changeRequest.commitChanges()
+
+        try await db.collection("users").document(user.uid).updateData([
+            "displayName": displayName
+        ])
+
+        currentUser = AppUser(
+            uid: user.uid,
+            email: currentUser?.email ?? user.email ?? "",
+            displayName: displayName,
+            createdAt: currentUser?.createdAt ?? Date()
+        )
+
+        logger.info("Profile updated: \(displayName)")
+    }
+
     // MARK: - Sign Out
 
     func signOut() throws {

@@ -23,6 +23,14 @@ struct PlateListView: View {
             }
             .navigationTitle("Mes plaques")
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    NavigationLink {
+                        ProfileSettingsView()
+                    } label: {
+                        Image(systemName: "person.circle")
+                            .foregroundStyle(Theme.Colors.accentInteractive)
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     if !viewModel.hasReachedLimit {
                         Button {

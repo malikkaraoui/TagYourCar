@@ -97,4 +97,18 @@ final class MockAuthService: ObservableObject, AuthServiceProtocol {
         currentUser = user
         isAuthenticated = true
     }
+
+    // Profile
+    var updateProfileCalled = false
+    var lastFirstName: String?
+    var lastLastName: String?
+    var shouldThrowOnUpdateProfile = false
+
+    func updateProfile(firstName: String, lastName: String) async throws {
+        updateProfileCalled = true
+        lastFirstName = firstName
+        lastLastName = lastName
+        if shouldThrowOnUpdateProfile { throw errorToThrow }
+        currentUser = AppUser(uid: currentUser?.uid ?? "uid", email: currentUser?.email ?? "", displayName: "\(firstName) \(lastName)", createdAt: Date())
+    }
 }

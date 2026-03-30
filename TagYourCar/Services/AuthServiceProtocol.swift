@@ -13,6 +13,7 @@ protocol AuthServiceProtocol: ObservableObject {
     func handleAppleSignIn(authorization: ASAuthorization) async throws
     func signInWithGoogle() async throws
     func signInWithGitHub() async throws
+    func updateProfile(firstName: String, lastName: String) async throws
 }
 
 extension AuthService: AuthServiceProtocol {}
