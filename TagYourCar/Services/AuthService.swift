@@ -107,7 +107,7 @@ final class AuthService: ObservableObject {
                 createdAt: Date()
             )
 
-            try db.collection("users").document(result.user.uid).setData(from: appUser)
+            try await db.collection("users").document(result.user.uid).setData(from: appUser)
             self.currentUser = appUser
             self.isAuthenticated = true
             logger.info("User signed up via email: \(result.user.uid)")
@@ -253,7 +253,7 @@ final class AuthService: ObservableObject {
     // MARK: - Delete Account (FR4, FR26 — RGPD)
 
     func deleteAccount() async throws {
-        guard let functions = {
+        guard let auth, let functions = {
             guard FirebaseApp.app() != nil else { return nil as Functions? }
             return Functions.functions()
         }() else {
@@ -263,7 +263,16 @@ final class AuthService: ObservableObject {
         logger.info("Demarrage suppression de compte")
         let _ = try await functions.httpsCallable("deleteUserData").call()
 
-        // Deconnexion locale apres purge serveur
+        // Detacher le listener AVANT de modifier l'etat pour eviter
+        // qu'il ne remette isAuthenticated = true en parallele
+        if let listener = authStateListener {
+            auth.removeStateDidChangeListener(listener)
+            authStateListener = nil
+            authListenerStarted = false
+        }
+
+        // Invalider la session locale immediatement
+        try? auth.signOut()
         currentUser = nil
         isAuthenticated = false
         logger.info("Compte supprime et deconnecte")
@@ -303,7 +312,7 @@ final class AuthService: ObservableObject {
                     displayName: firebaseUser.displayName ?? "",
                     createdAt: Date()
                 )
-                try db.collection("users").document(firebaseUser.uid).setData(from: appUser)
+                try await db.collection("users").document(firebaseUser.uid).setData(from: appUser)
                 self.currentUser = appUser
                 logger.info("Created Firestore user for social sign-in: \(firebaseUser.uid)")
             }

@@ -188,10 +188,10 @@ struct ReportView: View {
         }
         .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
         .onChange(of: viewModel.plateText) { _ in
-            if viewModel.isPlateValid && !viewModel.isSubmitting {
-                let uid = authService.currentUser?.uid ?? ""
+            if viewModel.isPlateValid && !viewModel.isSubmitting,
+               authService.currentUser != nil {
                 Task {
-                    await viewModel.submitReport(uid: uid)
+                    await viewModel.submitReport()
                 }
             }
         }

@@ -77,7 +77,7 @@ final class ReportViewModel: ObservableObject {
         logger.info("Retour a la selection de couleur")
     }
 
-    func submitReport(uid: String) async {
+    func submitReport() async {
         guard let zone = selectedZone,
               let problem = selectedProblem,
               let color = selectedColor,
@@ -92,8 +92,7 @@ final class ReportViewModel: ObservableObject {
                 zone: zone,
                 problemType: problem,
                 vehicleColor: color,
-                plate: formattedPlate,
-                reporterUid: uid
+                plate: formattedPlate
             )
             reportResult = result
             showConfirmation = true

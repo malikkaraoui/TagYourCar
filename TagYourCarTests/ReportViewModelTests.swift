@@ -286,7 +286,7 @@ final class ReportViewModelTests: XCTestCase {
     func testSubmitReportRequiresAllFields() async {
         // Sans zone selectionnee, submitReport ne fait rien
         viewModel.plateText = "AB-123-CD"
-        await viewModel.submitReport(uid: "test-uid")
+        await viewModel.submitReport()
 
         XCTAssertFalse(viewModel.isSubmitting)
         XCTAssertFalse(viewModel.showConfirmation)
@@ -298,7 +298,7 @@ final class ReportViewModelTests: XCTestCase {
         viewModel.selectColor(.blue)
         viewModel.plateText = "AB-12" // invalide
 
-        await viewModel.submitReport(uid: "test-uid")
+        await viewModel.submitReport()
 
         XCTAssertFalse(viewModel.showConfirmation)
     }

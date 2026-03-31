@@ -16,8 +16,7 @@ final class ReportService: ObservableObject {
         zone: VehicleZone,
         problemType: ProblemType,
         vehicleColor: VehicleColor,
-        plate: String,
-        reporterUid: String
+        plate: String
     ) async throws -> ReportResult {
         guard let functions else {
             logger.error("Envoi de signalement impossible sans Firebase Functions")
