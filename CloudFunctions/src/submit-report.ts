@@ -67,7 +67,7 @@ export const submitReport = onCall(
       zone: zone,
       problemType: problemType,
       vehicleColor: vehicleColor,
-      partialPlate: plate.substring(0, 2) + "-" + plate.substring(3, 4) + "xx-" + plate.substring(7),
+      partialPlate: plate.substring(0, 2) + "-xxx-" + plate.substring(7),
       createdAt: FieldValue.serverTimestamp(),
       status: "pending",
     });

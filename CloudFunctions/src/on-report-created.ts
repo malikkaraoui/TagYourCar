@@ -69,6 +69,13 @@ export const onReportCreated = onDocumentCreated(
     const problemText = problemLabels[report.problemType] || "un probleme a ete signale";
     const partialPlate = report.partialPlate || "votre vehicule";
 
+    // Incrementer le compteur de badge non-lus
+    const userRef = db.collection("users").doc(ownerUid);
+    const { FieldValue } = await import("firebase-admin/firestore");
+    await userRef.update({ unreadBadge: FieldValue.increment(1) });
+    const updatedUser = await userRef.get();
+    const badgeCount = updatedUser.data()?.unreadBadge || 1;
+
     // Envoyer la notification FCM
     try {
       await getMessaging().send({
@@ -88,14 +95,14 @@ export const onReportCreated = onDocumentCreated(
           payload: {
             aps: {
               sound: "default",
-              badge: 1,
+              badge: badgeCount,
             },
           },
         },
       });
 
       await snapshot.ref.update({ status: "delivered" });
-      logger.info(`Notification envoyee au proprietaire de ${partialPlate}`);
+      logger.info(`Notification envoyee au proprietaire de ${partialPlate} (badge: ${badgeCount})`);
     } catch (error) {
       logger.error("Erreur envoi notification FCM:", error);
       await snapshot.ref.update({ status: "failed" });

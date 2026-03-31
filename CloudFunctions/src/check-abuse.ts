@@ -18,6 +18,7 @@ export interface AbuseCheckResult {
 /**
  * Verifie si un utilisateur est bloque ou depasse le rate limit.
  * Gere le blocage progressif (24h → 72h → definitif).
+ * Utilise une transaction Firestore pour eviter les race conditions.
  */
 export async function checkAbuse(
   uid: string,
@@ -25,19 +26,19 @@ export async function checkAbuse(
 ): Promise<AbuseCheckResult> {
   const db = getFirestore();
   const abuseRef = db.collection("abuseTracking").doc(uid);
-  const abuseDoc = await abuseRef.get();
   const now = Date.now();
+
+  // Lecture hors transaction pour le blocage actif (read-only, pas de race)
+  const abuseDoc = await abuseRef.get();
 
   if (abuseDoc.exists) {
     const data = abuseDoc.data()!;
 
-    // Verifier si bloque
     if (data.blocked) {
       const blockLevel = data.blockLevel || 1;
       const blockedAt = (data.blockedAt as Timestamp)?.toMillis() || 0;
       const blockDuration = BLOCK_DURATIONS[blockLevel];
 
-      // Blocage definitif
       if (blockDuration === null) {
         logger.warn(`Utilisateur ${uid} bloque definitivement`);
         return {
@@ -46,7 +47,6 @@ export async function checkAbuse(
         };
       }
 
-      // Blocage temporaire — verifier expiration
       if (now - blockedAt < blockDuration) {
         const remainingMs = blockDuration - (now - blockedAt);
         const remainingHours = Math.ceil(remainingMs / (60 * 60 * 1000));
@@ -58,9 +58,7 @@ export async function checkAbuse(
         };
       }
 
-      // Blocage expire — debloquer
-      await abuseRef.update({ blocked: false });
-      logger.info(`Blocage expire pour ${uid}`);
+      // Blocage expire — debloquer dans la transaction ci-dessous
     }
   }
 
@@ -74,7 +72,6 @@ export async function checkAbuse(
 
   const reportCount = recentReports.size;
 
-  // Rate limiting global
   if (reportCount >= MAX_REPORTS_PER_24H) {
     logger.warn(`Rate limit atteint pour ${uid}: ${reportCount} signalements en 24h`);
     return {
@@ -83,53 +80,67 @@ export async function checkAbuse(
     };
   }
 
-  // Detection pattern abusif : meme plaque signalee plusieurs fois
+  // Detection pattern abusif
   const samePlateReports = recentReports.docs.filter(
     (doc) => doc.data().plateHash === plateHash
   );
 
-  if (samePlateReports.length >= SAME_PLATE_THRESHOLD) {
-    // Blocage progressif
-    const currentLevel = abuseDoc.exists
-      ? (abuseDoc.data()!.blockLevel || 0)
-      : 0;
-    const newLevel = Math.min(currentLevel + 1, 3);
+  // Transaction pour les ecritures — empeche le double-tap de contourner le rate limit
+  return db.runTransaction(async (transaction) => {
+    const freshAbuse = await transaction.get(abuseRef);
+    const freshData = freshAbuse.exists ? freshAbuse.data()! : {};
 
-    await abuseRef.set(
+    // Debloquer si le blocage a expire
+    if (freshData.blocked && freshData.blockLevel) {
+      const blockDuration = BLOCK_DURATIONS[freshData.blockLevel];
+      const blockedAt = (freshData.blockedAt as Timestamp)?.toMillis() || 0;
+      if (blockDuration !== null && now - blockedAt >= blockDuration) {
+        transaction.update(abuseRef, { blocked: false });
+      }
+    }
+
+    if (samePlateReports.length >= SAME_PLATE_THRESHOLD) {
+      const currentLevel = freshData.blockLevel || 0;
+      const newLevel = Math.min(currentLevel + 1, 3);
+
+      transaction.set(
+        abuseRef,
+        {
+          blocked: true,
+          blockLevel: newLevel,
+          blockedAt: FieldValue.serverTimestamp(),
+          lastReportAt: FieldValue.serverTimestamp(),
+          reportCount24h: reportCount,
+        },
+        { merge: true }
+      );
+
+      const messages: Record<number, string> = {
+        1: "Votre compte est temporairement restreint pour 24 heures.",
+        2: "Votre compte est restreint pour 72 heures.",
+        3: "Votre compte a ete definitivement restreint.",
+      };
+
+      logger.warn(`Blocage niveau ${newLevel} pour ${uid} — pattern abusif detecte`);
+      return {
+        allowed: false,
+        message: messages[newLevel],
+      } as AbuseCheckResult;
+    }
+
+    // Mettre a jour le tracking atomiquement
+    transaction.set(
+      abuseRef,
       {
-        blocked: true,
-        blockLevel: newLevel,
-        blockedAt: FieldValue.serverTimestamp(),
         lastReportAt: FieldValue.serverTimestamp(),
-        reportCount24h: reportCount,
+        reportCount24h: reportCount + 1,
       },
       { merge: true }
     );
 
-    const messages: Record<number, string> = {
-      1: "Votre compte est temporairement restreint pour 24 heures.",
-      2: "Votre compte est restreint pour 72 heures.",
-      3: "Votre compte a ete definitivement restreint.",
-    };
-
-    logger.warn(`Blocage niveau ${newLevel} pour ${uid} — pattern abusif detecte`);
     return {
-      allowed: false,
-      message: messages[newLevel],
-    };
-  }
-
-  // Mettre a jour le tracking
-  await abuseRef.set(
-    {
-      lastReportAt: FieldValue.serverTimestamp(),
-      reportCount24h: reportCount + 1,
-    },
-    { merge: true }
-  );
-
-  return {
-    allowed: true,
-    remainingReports: MAX_REPORTS_PER_24H - reportCount - 1,
-  };
+      allowed: true,
+      remainingReports: MAX_REPORTS_PER_24H - reportCount - 1,
+    } as AbuseCheckResult;
+  });
 }

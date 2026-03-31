@@ -15,45 +15,30 @@ export const deleteUserData = onCall(async (request) => {
   logger.info(`Demarrage purge complete pour utilisateur ${uid}`);
 
   try {
-    // 1. Supprimer toutes les plaques de l'utilisateur
-    const plates = await db
-      .collection("plates")
-      .where("ownerUid", "==", uid)
-      .get();
+    // 1. Collecter toutes les plaques et signalements en parallele
+    const [plates, reports] = await Promise.all([
+      db.collection("plates").where("ownerUid", "==", uid).get(),
+      db.collection("reports").where("reporterUid", "==", uid).get(),
+    ]);
+
+    // 2. Supprimer par batch (max 500 ops par batch Firestore)
+    const batch = db.batch();
 
     for (const doc of plates.docs) {
-      await doc.ref.delete();
+      batch.delete(doc.ref);
     }
-    logger.info(`${plates.size} plaques supprimees pour ${uid}`);
-
-    // 2. Supprimer tous les signalements de l'utilisateur
-    const reports = await db
-      .collection("reports")
-      .where("reporterUid", "==", uid)
-      .get();
-
     for (const doc of reports.docs) {
-      await doc.ref.delete();
-    }
-    logger.info(`${reports.size} signalements supprimes pour ${uid}`);
-
-    // 3. Supprimer le document abuseTracking
-    const abuseRef = db.collection("abuseTracking").doc(uid);
-    const abuseDoc = await abuseRef.get();
-    if (abuseDoc.exists) {
-      await abuseRef.delete();
-      logger.info(`Document abuseTracking supprime pour ${uid}`);
+      batch.delete(doc.ref);
     }
 
-    // 4. Supprimer le document utilisateur
-    const userRef = db.collection("users").doc(uid);
-    const userDoc = await userRef.get();
-    if (userDoc.exists) {
-      await userRef.delete();
-      logger.info(`Document users supprime pour ${uid}`);
-    }
+    // Ajouter abuseTracking et users dans le meme batch
+    batch.delete(db.collection("abuseTracking").doc(uid));
+    batch.delete(db.collection("users").doc(uid));
 
-    // 5. Supprimer le compte Firebase Auth
+    await batch.commit();
+    logger.info(`Batch supprime : ${plates.size} plaques, ${reports.size} signalements, abuseTracking, users pour ${uid}`);
+
+    // 3. Supprimer le compte Firebase Auth (hors batch Firestore)
     await getAuth().deleteUser(uid);
     logger.info(`Compte Firebase Auth supprime pour ${uid}`);
 
