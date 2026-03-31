@@ -10,6 +10,7 @@ struct ConfirmationView: View {
 
     @State private var showCheck = false
     @State private var autoDismissTask: Task<Void, Never>?
+    @State private var showShareSheet = false
 
     enum Variant {
         case success
@@ -93,20 +94,36 @@ struct ConfirmationView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, Theme.Spacing.xl)
 
+            // CTA carte pare-brise
+            Button {
+                showShareSheet = true
+            } label: {
+                HStack(spacing: Theme.Spacing.sm) {
+                    Image(systemName: "doc.text")
+                    Text("Carte pare-brise")
+                }
+                .font(Theme.Typography.body)
+                .frame(maxWidth: .infinity)
+                .padding(Theme.Spacing.md)
+                .background(Theme.Colors.accentInteractive)
+                .foregroundStyle(Theme.Colors.textOnAccent)
+                .cornerRadius(Theme.Radius.md)
+            }
+            .padding(.horizontal, Theme.Spacing.xl)
+            .accessibilityLabel("Partager une carte pare-brise")
+            .accessibilityHint("Ouvre les options de partage pour une fiche a glisser sur le pare-brise")
+
             Button {
                 onDismiss()
             } label: {
-                Text("Compris")
-                    .font(Theme.Typography.body)
-                    .frame(maxWidth: .infinity)
-                    .padding(Theme.Spacing.md)
-                    .background(Theme.Colors.accentInteractive)
-                    .foregroundStyle(Theme.Colors.textOnAccent)
-                    .cornerRadius(Theme.Radius.md)
+                Text("Fermer")
+                    .font(Theme.Typography.bodySmall)
+                    .foregroundStyle(Theme.Colors.accentInteractive)
             }
-            .padding(.horizontal, Theme.Spacing.xl)
-            .padding(.top, Theme.Spacing.md)
             .accessibilityLabel("Fermer et revenir a l'accueil")
+        }
+        .sheet(isPresented: $showShareSheet) {
+            WindshieldCardShareSheet()
         }
     }
 
