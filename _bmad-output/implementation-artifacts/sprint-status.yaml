@@ -56,8 +56,8 @@ development_status:
   epic-2-retrospective: optional
 
   # Epic 3: Signalement & Notifications
-  epic-3: backlog
-  3-1-selection-zone-type-probleme: backlog
+  epic-3: in-progress
+  3-1-selection-zone-type-probleme: review
   3-2-couleur-vehicule-saisie-plaque: backlog
   3-3-envoi-signalement-notification-push: backlog
   3-4-plaque-non-enregistree-carte-pare-brise: backlog

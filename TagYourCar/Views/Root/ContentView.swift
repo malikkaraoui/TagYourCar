@@ -21,7 +21,7 @@ struct TabBarView: View {
 
     var body: some View {
         TabView {
-            ReportPlaceholderView()
+            ReportView()
                 .tabItem {
                     Label("Signaler", systemImage: "exclamationmark.triangle")
                 }
@@ -35,24 +35,3 @@ struct TabBarView: View {
     }
 }
 
-// Placeholder — sera remplace dans Epic 3
-struct ReportPlaceholderView: View {
-    var body: some View {
-        NavigationStack {
-            VStack(spacing: Theme.Spacing.lg) {
-                Spacer()
-                Image(systemName: "exclamationmark.triangle")
-                    .font(.system(size: 64))
-                    .foregroundStyle(Theme.Colors.accentMuted)
-                Text("Signalement")
-                    .font(Theme.Typography.h1)
-                    .foregroundStyle(Theme.Colors.textPrimary)
-                Text("Bientot disponible")
-                    .font(Theme.Typography.body)
-                    .foregroundStyle(Theme.Colors.textSecondary)
-                Spacer()
-            }
-            .navigationTitle("Signaler")
-        }
-    }
-}
