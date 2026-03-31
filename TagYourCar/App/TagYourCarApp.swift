@@ -13,7 +13,7 @@ struct TagYourCarApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(notificationHandler: delegate.notificationHandler)
                 .environmentObject(authService)
         }
     }
