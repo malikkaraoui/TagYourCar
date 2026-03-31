@@ -34,7 +34,11 @@ final class AuthViewModel: ObservableObject {
     }
 
     var canSignUp: Bool {
-        isEmailValid && isPasswordValid && !firstName.isEmpty && !lastName.isEmpty && cguAccepted
+        isEmailValid
+            && isPasswordValid
+            && !firstName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && !lastName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            && cguAccepted
     }
 
     // MARK: - Actions
@@ -92,12 +96,23 @@ final class AuthViewModel: ObservableObject {
     }
 
     private func mapError(_ error: Error) -> String {
+        if let tagYourCarError = error as? TagYourCarError {
+            switch tagYourCarError {
+            case .firebaseNotConfigured:
+                return "Firebase n'est pas configure dans l'app. Ajoutez GoogleService-Info.plist puis relancez l'application."
+            default:
+                return tagYourCarError.errorDescription ?? "Une erreur est survenue."
+            }
+        }
+
         let nsError = error as NSError
         
         // Log l'erreur complète pour debug
         logger.error("Error code: \(nsError.code), domain: \(nsError.domain), description: \(error.localizedDescription)")
         
         switch nsError.code {
+        case 17006: // FIRAuthErrorCodeOperationNotAllowed
+            return "L'inscription par email n'est pas activee dans Firebase."
         case 17008: // FIRAuthErrorCodeInvalidEmail
             return "Adresse email invalide."
         case 17009, 17004: // FIRAuthErrorCodeWrongPassword, FIRAuthErrorCodeUserNotFound

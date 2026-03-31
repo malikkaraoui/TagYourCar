@@ -15,6 +15,9 @@ struct TagYourCarApp: App {
         WindowGroup {
             ContentView(notificationHandler: delegate.notificationHandler)
                 .environmentObject(authService)
+                .task {
+                    authService.activateIfNeeded()
+                }
         }
     }
 }

@@ -1,0 +1,30 @@
+{
+  "configurations" : [
+    {
+      "id" : "F268C4B0-64F1-4A03-A43E-62DE66C410F4",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "distributor" : "com.apple.TestFlight",
+    "performanceAntipatternCheckerEnabled" : true,
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:TagYourCar.xcodeproj",
+      "identifier" : "80B666ACE0FAAA2621712A09",
+      "name" : "TagYourCar"
+    }
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:TagYourCar.xcodeproj",
+        "identifier" : "4C2AA01E0FBDC49684DE2DBC",
+        "name" : "TagYourCarTests"
+      }
+    }
+  ],
+  "version" : 1
+}

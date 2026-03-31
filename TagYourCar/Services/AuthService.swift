@@ -25,25 +25,42 @@ final class AuthService: ObservableObject {
     private let logger = Logger(subsystem: "com.tagyourcar", category: "AuthService")
     private nonisolated(unsafe) var authStateListener: AuthStateDidChangeListenerHandle?
     private var currentNonce: String?
+    private var authListenerStarted = false
     private var isFirebaseConfigured: Bool {
         FirebaseApp.app() != nil
     }
 
     init() {
-        if isFirebaseConfigured {
-            listenToAuthState()
-        } else {
-            logger.warning("Firebase non configure — authentification desactivee")
+        activateIfNeeded()
+    }
+
+    func activateIfNeeded() {
+        guard isFirebaseConfigured else {
+            logger.warning("Firebase non configure — authentification indisponible tant que GoogleService-Info.plist est absent")
+            return
+        }
+
+        guard !authListenerStarted else { return }
+        listenToAuthState()
+
+        if let auth, let firebaseUser = auth.currentUser {
+            isAuthenticated = true
+            Task { @MainActor [weak self] in
+                await self?.fetchOrCreateUser(firebaseUser: firebaseUser)
+            }
         }
     }
 
     // MARK: - Auth State Listener
 
     private func listenToAuthState() {
+        guard authStateListener == nil else { return }
         guard let auth else {
             logger.warning("Auth indisponible — listener non initialise")
             return
         }
+
+        authListenerStarted = true
 
         authStateListener = auth.addStateDidChangeListener { [weak self] _, firebaseUser in
             Task { @MainActor [weak self] in
@@ -62,39 +79,64 @@ final class AuthService: ObservableObject {
     // MARK: - Email Sign Up
 
     func signUp(email: String, password: String, firstName: String, lastName: String) async throws {
+        activateIfNeeded()
+
         guard let auth, let db else {
             logger.warning("Tentative d'inscription sans configuration Firebase")
-            throw TagYourCarError.unknownError
+            throw TagYourCarError.firebaseNotConfigured
         }
 
-        let result = try await auth.createUser(withEmail: email, password: password)
-        let displayName = "\(firstName) \(lastName)"
+        let normalizedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let normalizedFirstName = firstName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let normalizedLastName = lastName.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        let changeRequest = result.user.createProfileChangeRequest()
-        changeRequest.displayName = displayName
-        try await changeRequest.commitChanges()
+        let result = try await auth.createUser(withEmail: normalizedEmail, password: password)
+        let displayName = [normalizedFirstName, normalizedLastName]
+            .filter { !$0.isEmpty }
+            .joined(separator: " ")
 
-        let appUser = AppUser(
-            uid: result.user.uid,
-            email: email,
-            displayName: displayName,
-            createdAt: Date()
-        )
+        do {
+            let changeRequest = result.user.createProfileChangeRequest()
+            changeRequest.displayName = displayName
+            try await changeRequest.commitChanges()
 
-        try db.collection("users").document(result.user.uid).setData(from: appUser)
-        self.currentUser = appUser
-        logger.info("User signed up via email: \(result.user.uid)")
+            let appUser = AppUser(
+                uid: result.user.uid,
+                email: normalizedEmail,
+                displayName: displayName,
+                createdAt: Date()
+            )
+
+            try db.collection("users").document(result.user.uid).setData(from: appUser)
+            self.currentUser = appUser
+            self.isAuthenticated = true
+            logger.info("User signed up via email: \(result.user.uid)")
+        } catch {
+            logger.error("Finalisation inscription email echouee: \(error.localizedDescription)")
+
+            do {
+                try await result.user.delete()
+                logger.info("Rollback utilisateur Auth apres echec Firestore: \(result.user.uid)")
+            } catch {
+                logger.error("Rollback utilisateur Auth impossible: \(error.localizedDescription)")
+            }
+
+            throw error
+        }
     }
 
     // MARK: - Email Sign In
 
     func signIn(email: String, password: String) async throws {
+        activateIfNeeded()
+
         guard let auth else {
             logger.warning("Tentative de connexion sans configuration Firebase")
-            throw TagYourCarError.unknownError
+            throw TagYourCarError.firebaseNotConfigured
         }
 
-        let result = try await auth.signIn(withEmail: email, password: password)
+        let normalizedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        let result = try await auth.signIn(withEmail: normalizedEmail, password: password)
         await fetchOrCreateUser(firebaseUser: result.user)
         logger.info("User signed in via email: \(result.user.uid)")
     }
@@ -109,9 +151,11 @@ final class AuthService: ObservableObject {
     }
 
     func handleAppleSignIn(authorization: ASAuthorization) async throws {
+        activateIfNeeded()
+
         guard let auth else {
             logger.warning("Tentative de connexion Apple sans configuration Firebase")
-            throw TagYourCarError.unknownError
+            throw TagYourCarError.firebaseNotConfigured
         }
 
         guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential,
@@ -135,9 +179,11 @@ final class AuthService: ObservableObject {
     // MARK: - Google Sign-In
 
     func signInWithGoogle() async throws {
+        activateIfNeeded()
+
         guard let auth else {
             logger.warning("Tentative de connexion Google sans configuration Firebase")
-            throw TagYourCarError.unknownError
+            throw TagYourCarError.firebaseNotConfigured
         }
 
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
@@ -163,9 +209,11 @@ final class AuthService: ObservableObject {
     // MARK: - GitHub Sign-In
 
     func signInWithGitHub() async throws {
+        activateIfNeeded()
+
         guard let auth else {
             logger.warning("Tentative de connexion GitHub sans configuration Firebase")
-            throw TagYourCarError.unknownError
+            throw TagYourCarError.firebaseNotConfigured
         }
 
         let provider = OAuthProvider(providerID: "github.com")
