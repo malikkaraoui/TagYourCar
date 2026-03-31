@@ -28,15 +28,22 @@ targets:
     platform: iOS
     sources:
       - TagYourCar
+    info:
+      path: TagYourCar/Resources/Info.plist
+      properties:
+        CFBundleURLTypes:
+          - CFBundleURLSchemes:
+              - com.googleusercontent.apps.71145584282-aqt95t49louvmnurlq430ce8ajqop4q5
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.tagyourcar.app
-        GENERATE_INFOPLIST_FILE: true
+        GENERATE_INFOPLIST_FILE: false
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: true
         INFOPLIST_KEY_UILaunchScreen_Generation: true
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait"
         INFOPLIST_KEY_CFBundleDisplayName: TagYourCar
         SWIFT_STRICT_CONCURRENCY: targeted
+        CODE_SIGN_ENTITLEMENTS: TagYourCar/TagYourCar.entitlements
     dependencies:
       - package: Firebase
         product: FirebaseAuth

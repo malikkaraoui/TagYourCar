@@ -52,7 +52,7 @@ development_status:
   2-1-cloud-functions-hashage-verification: review
   2-2-ecran-mes-plaques-ajout-plaque: review
   2-3-suppression-de-plaque: review
-  2-4-profil-parametres: in-progress
+  2-4-profil-parametres: review
   epic-2-retrospective: optional
 
   # Epic 3: Signalement & Notifications
