@@ -1,6 +1,7 @@
 import { onCall, HttpsError } from "firebase-functions/v2/https";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import * as crypto from "crypto";
+import { checkAbuse } from "./check-abuse";
 
 export const submitReport = onCall(
   { secrets: ["PLATE_HASH_SALT"] },
@@ -41,6 +42,15 @@ export const submitReport = onCall(
       .createHash("sha256")
       .update(plate + salt)
       .digest("hex");
+
+    // Anti-abus : verifier rate limiting et blocage (FR21, FR22, FR23)
+    const abuseResult = await checkAbuse(uid, plateHash);
+    if (!abuseResult.allowed) {
+      throw new HttpsError(
+        "resource-exhausted",
+        abuseResult.message || "Trop de signalements. Reessayez plus tard."
+      );
+    }
 
     // Check if plate is registered
     const plateDoc = await db.collection("plates").doc(plateHash).get();

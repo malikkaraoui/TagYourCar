@@ -67,6 +67,7 @@ final class TagYourCarErrorTests: XCTestCase {
         XCTAssertNotNil(TagYourCarError.plateLimitReached.errorDescription)
         XCTAssertNotNil(TagYourCarError.plateAlreadyRegistered.errorDescription)
         XCTAssertNotNil(TagYourCarError.reportFailed.errorDescription)
+        XCTAssertNotNil(TagYourCarError.reportBlocked("Test blocage").errorDescription)
         XCTAssertNotNil(TagYourCarError.notificationPermissionDenied.errorDescription)
         XCTAssertNotNil(TagYourCarError.firebaseNotConfigured.errorDescription)
         XCTAssertNotNil(TagYourCarError.unknownError.errorDescription)

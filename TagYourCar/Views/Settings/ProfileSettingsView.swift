@@ -6,6 +6,9 @@ struct ProfileSettingsView: View {
     @State private var lastName = ""
     @State private var isSaving = false
     @State private var showSaveConfirmation = false
+    @State private var showDeleteConfirmation = false
+    @State private var isDeleting = false
+    @State private var deleteError: String?
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -91,6 +94,29 @@ struct ProfileSettingsView: View {
                 }
                 .foregroundStyle(Theme.Colors.error)
             }
+
+            Section {
+                Button {
+                    showDeleteConfirmation = true
+                } label: {
+                    HStack {
+                        if isDeleting {
+                            ProgressView()
+                                .controlSize(.small)
+                        }
+                        Text("Supprimer mon compte")
+                    }
+                    .foregroundStyle(Theme.Colors.error)
+                }
+                .disabled(isDeleting)
+                .accessibilityLabel("Supprimer definitivement votre compte")
+                .accessibilityHint("Cette action est irreversible")
+            } footer: {
+                if let deleteError {
+                    Text(deleteError)
+                        .foregroundStyle(Theme.Colors.error)
+                }
+            }
         }
         .navigationTitle("Profil & Parametres")
         .onAppear {
@@ -98,6 +124,14 @@ struct ProfileSettingsView: View {
         }
         .alert("Modifications enregistrees", isPresented: $showSaveConfirmation) {
             Button("OK", role: .cancel) {}
+        }
+        .alert("Supprimer votre compte ?", isPresented: $showDeleteConfirmation) {
+            Button("Annuler", role: .cancel) {}
+            Button("Supprimer", role: .destructive) {
+                Task { await deleteAccount() }
+            }
+        } message: {
+            Text("Cette action est irreversible. Toutes vos donnees seront supprimees definitivement (plaques, signalements, profil).")
         }
     }
 
@@ -126,6 +160,17 @@ struct ProfileSettingsView: View {
         let parts = displayName.split(separator: " ", maxSplits: 1)
         firstName = parts.first.map(String.init) ?? ""
         lastName = parts.count > 1 ? String(parts[1]) : ""
+    }
+
+    private func deleteAccount() async {
+        isDeleting = true
+        deleteError = nil
+        do {
+            try await authService.deleteAccount()
+        } catch {
+            deleteError = "La suppression est en cours de traitement. Vos donnees seront supprimees sous peu."
+        }
+        isDeleting = false
     }
 
     private func saveProfile() async {

@@ -31,7 +31,19 @@ final class ReportService: ObservableObject {
             "plate": plate,
         ]
 
-        let result = try await functions.httpsCallable("submitReport").call(data)
+        let result: HTTPSCallableResult
+        do {
+            result = try await functions.httpsCallable("submitReport").call(data)
+        } catch {
+            let nsError = error as NSError
+            // resource-exhausted = anti-abus (rate limit ou blocage)
+            if nsError.domain == "com.firebase.functions" || nsError.code == 8 {
+                let message = nsError.localizedDescription
+                logger.warning("Signalement bloque par anti-abus : \(message)")
+                throw TagYourCarError.reportBlocked(message)
+            }
+            throw TagYourCarError.reportFailed
+        }
 
         guard let responseData = result.data as? [String: Any] else {
             throw TagYourCarError.reportFailed

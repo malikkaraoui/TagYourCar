@@ -4,6 +4,7 @@ import CryptoKit
 import FirebaseAuth
 import FirebaseCore
 import FirebaseFirestore
+import FirebaseFunctions
 import GoogleSignIn
 import os
 
@@ -199,6 +200,25 @@ final class AuthService: ObservableObject {
         )
 
         logger.info("Profile updated: \(displayName)")
+    }
+
+    // MARK: - Delete Account (FR4, FR26 — RGPD)
+
+    func deleteAccount() async throws {
+        guard let functions = {
+            guard FirebaseApp.app() != nil else { return nil as Functions? }
+            return Functions.functions()
+        }() else {
+            throw TagYourCarError.firebaseNotConfigured
+        }
+
+        logger.info("Demarrage suppression de compte")
+        let _ = try await functions.httpsCallable("deleteUserData").call()
+
+        // Deconnexion locale apres purge serveur
+        currentUser = nil
+        isAuthenticated = false
+        logger.info("Compte supprime et deconnecte")
     }
 
     // MARK: - Sign Out

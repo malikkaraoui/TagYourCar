@@ -5,6 +5,7 @@ enum TagYourCarError: LocalizedError {
     case plateLimitReached
     case plateAlreadyRegistered
     case reportFailed
+    case reportBlocked(String)
     case notificationPermissionDenied
     case firebaseNotConfigured
     case networkError(Error)
@@ -20,6 +21,8 @@ enum TagYourCarError: LocalizedError {
             return "Cette plaque est deja enregistree par un autre utilisateur."
         case .reportFailed:
             return "Le signalement n'a pas pu etre envoye. Reessayez."
+        case .reportBlocked(let message):
+            return message
         case .notificationPermissionDenied:
             return "Les notifications sont desactivees. Activez-les dans les reglages."
         case .firebaseNotConfigured:
