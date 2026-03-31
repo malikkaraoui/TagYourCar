@@ -19,7 +19,6 @@ final class PlateViewModel: ObservableObject {
 
     init(plateService: PlateService) {
         self.plateService = plateService
-        haptic.prepare()
     }
 
     // MARK: - Validation
@@ -62,7 +61,8 @@ final class PlateViewModel: ObservableObject {
             showAddPlate = false
             state = .loaded
             
-            // Haptic feedback success
+            // Retour haptique succes
+            haptic.prepare()
             haptic.notificationOccurred(.success)
 
             if isFirstPlate {
@@ -74,9 +74,10 @@ final class PlateViewModel: ObservableObject {
             state = .error(mapError(error))
             errorMessage = mapError(error)
             
-            // Haptic feedback error
+            // Retour haptique erreur
+            haptic.prepare()
             haptic.notificationOccurred(.error)
-            
+
             logger.error("Failed to add plate: \(error.localizedDescription)")
         }
     }
@@ -90,17 +91,19 @@ final class PlateViewModel: ObservableObject {
             plates = plateService.plates
             state = .loaded
             
-            // Haptic feedback success
+            // Retour haptique succes
+            haptic.prepare()
             haptic.notificationOccurred(.success)
-            
+
             logger.info("Plate deleted successfully")
         } catch {
             state = .error("Erreur lors de la suppression.")
             errorMessage = "Erreur lors de la suppression. Reessayez."
             
-            // Haptic feedback error
+            // Retour haptique erreur
+            haptic.prepare()
             haptic.notificationOccurred(.error)
-            
+
             logger.error("Failed to delete plate: \(error.localizedDescription)")
         }
     }

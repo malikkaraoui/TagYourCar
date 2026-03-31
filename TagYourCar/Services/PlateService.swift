@@ -7,7 +7,7 @@ import os
 @MainActor
 final class PlateService: ObservableObject {
     @Published var plates: [Plate] = []
-    @Published var isFirebaseConfigured = false
+    private var isFirebaseConfigured = false
 
     private lazy var db: Firestore? = {
         guard FirebaseApp.app() != nil else { return nil }
