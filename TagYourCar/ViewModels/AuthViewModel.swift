@@ -93,19 +93,36 @@ final class AuthViewModel: ObservableObject {
 
     private func mapError(_ error: Error) -> String {
         let nsError = error as NSError
+        
+        // Log l'erreur complète pour debug
+        logger.error("Error code: \(nsError.code), domain: \(nsError.domain), description: \(error.localizedDescription)")
+        
         switch nsError.code {
-        case 17008:
+        case 17008: // FIRAuthErrorCodeInvalidEmail
             return "Adresse email invalide."
-        case 17009, 17004:
+        case 17009, 17004: // FIRAuthErrorCodeWrongPassword, FIRAuthErrorCodeUserNotFound
             return "Email ou mot de passe incorrect."
-        case 17007:
+        case 17007: // FIRAuthErrorCodeEmailAlreadyInUse
             return "Un compte avec cet email existe deja."
-        case 17026:
+        case 17026: // FIRAuthErrorCodeWeakPassword
             return "Le mot de passe doit contenir au moins 6 caracteres."
-        case 17020:
+        case 17020: // FIRAuthErrorCodeNetworkError
             return "Pas de connexion internet. Verifiez votre reseau."
+        case 17011: // FIRAuthErrorCodeAccountExistsWithDifferentCredential
+            return "Un compte existe deja avec cet email via un autre service."
+        case 17012: // FIRAuthErrorCodeRequiresRecentLogin
+            return "Pour des raisons de securite, reconnectez-vous."
+        case 17005: // FIRAuthErrorCodeUserDisabled
+            return "Ce compte a ete desactive."
+        case 17010: // FIRAuthErrorCodeInvalidCredential
+            return "Les informations d'identification sont invalides."
+        case 17999: // FIRAuthErrorCodeInternalError
+            return "Erreur interne. Reessayez dans quelques instants."
         default:
-            return "Une erreur est survenue. Reessayez."
+            // Pour les erreurs inconnues, donner un ID de référence
+            let errorId = UUID().uuidString.prefix(8)
+            logger.error("Unknown error ID: \(errorId)")
+            return "Une erreur est survenue (ref: \(errorId)). Reessayez."
         }
     }
 }

@@ -1,5 +1,6 @@
 import Foundation
 import UserNotifications
+import UIKit
 import os
 
 @MainActor
@@ -12,11 +13,13 @@ final class PlateViewModel: ObservableObject {
 
     private let plateService: PlateService
     private let logger = Logger(subsystem: "com.tagyourcar", category: "PlateViewModel")
+    private let haptic = UINotificationFeedbackGenerator()
 
     static let maxPlates = 5
 
     init(plateService: PlateService) {
         self.plateService = plateService
+        haptic.prepare()
     }
 
     // MARK: - Validation
@@ -58,6 +61,9 @@ final class PlateViewModel: ObservableObject {
             plateInput = ""
             showAddPlate = false
             state = .loaded
+            
+            // Haptic feedback success
+            haptic.notificationOccurred(.success)
 
             if isFirstPlate {
                 await requestNotificationPermission()
@@ -67,6 +73,10 @@ final class PlateViewModel: ObservableObject {
         } catch {
             state = .error(mapError(error))
             errorMessage = mapError(error)
+            
+            // Haptic feedback error
+            haptic.notificationOccurred(.error)
+            
             logger.error("Failed to add plate: \(error.localizedDescription)")
         }
     }
@@ -79,10 +89,18 @@ final class PlateViewModel: ObservableObject {
             try await plateService.deletePlate(plateText, for: uid)
             plates = plateService.plates
             state = .loaded
+            
+            // Haptic feedback success
+            haptic.notificationOccurred(.success)
+            
             logger.info("Plate deleted successfully")
         } catch {
             state = .error("Erreur lors de la suppression.")
             errorMessage = "Erreur lors de la suppression. Reessayez."
+            
+            // Haptic feedback error
+            haptic.notificationOccurred(.error)
+            
             logger.error("Failed to delete plate: \(error.localizedDescription)")
         }
     }

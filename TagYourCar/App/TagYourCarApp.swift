@@ -7,11 +7,7 @@ struct TagYourCarApp: App {
     @StateObject private var authService: AuthService
 
     init() {
-        if FirebaseApp.app() == nil,
-           Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil {
-            FirebaseApp.configure()
-        }
-
+        // Firebase est configuré dans AppDelegate - pas de duplication
         _authService = StateObject(wrappedValue: AuthService())
     }
 

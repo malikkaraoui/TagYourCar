@@ -16,7 +16,13 @@ struct PlateListView: View {
                 if viewModel.plates.isEmpty && viewModel.state == .loaded {
                     emptyState
                 } else if viewModel.state == .loading && viewModel.plates.isEmpty {
-                    ProgressView()
+                    VStack(spacing: Theme.Spacing.md) {
+                        ProgressView()
+                            .scaleEffect(1.2)
+                        Text("Chargement de vos plaques...")
+                            .font(Theme.Typography.body)
+                            .foregroundStyle(Theme.Colors.textSecondary)
+                    }
                 } else {
                     plateList
                 }
@@ -30,6 +36,7 @@ struct PlateListView: View {
                         Image(systemName: "person.circle")
                             .foregroundStyle(Theme.Colors.accentInteractive)
                     }
+                    .accessibilityLabel("Profil et paramètres")
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     if !viewModel.hasReachedLimit {
@@ -39,6 +46,7 @@ struct PlateListView: View {
                             Image(systemName: "plus")
                                 .foregroundStyle(Theme.Colors.accentInteractive)
                         }
+                        .accessibilityLabel("Ajouter une plaque")
                     }
                 }
             }

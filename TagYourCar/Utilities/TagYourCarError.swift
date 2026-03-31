@@ -6,6 +6,7 @@ enum TagYourCarError: LocalizedError {
     case plateAlreadyRegistered
     case reportFailed
     case notificationPermissionDenied
+    case firebaseNotConfigured
     case networkError(Error)
     case unknownError
 
@@ -21,6 +22,8 @@ enum TagYourCarError: LocalizedError {
             return "Le signalement n'a pas pu etre envoye. Reessayez."
         case .notificationPermissionDenied:
             return "Les notifications sont desactivees. Activez-les dans les reglages."
+        case .firebaseNotConfigured:
+            return "L'application n'est pas correctement configuree. Verifiez votre connexion."
         case .networkError(let error):
             return "Erreur reseau : \(error.localizedDescription)"
         case .unknownError:

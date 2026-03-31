@@ -24,12 +24,14 @@ struct SignUpView: View {
                             .padding(Theme.Spacing.md)
                             .background(Theme.Colors.bgCard)
                             .cornerRadius(Theme.Radius.md)
+                            .accessibilityLabel("Prénom")
 
                         TextField("Nom", text: $viewModel.lastName)
                             .textContentType(.familyName)
                             .padding(Theme.Spacing.md)
                             .background(Theme.Colors.bgCard)
                             .cornerRadius(Theme.Radius.md)
+                            .accessibilityLabel("Nom de famille")
                     }
 
                     TextField("Email", text: $viewModel.email)
@@ -49,6 +51,8 @@ struct SignUpView: View {
                                     lineWidth: 1
                                 )
                         )
+                        .accessibilityLabel("Email")
+                        .accessibilityHint(viewModel.email.isEmpty ? "Entrez votre email" : viewModel.isEmailValid ? "Email valide" : "Email invalide")
 
                     SecureField("Mot de passe (6 caracteres min.)", text: $viewModel.password)
                         .textContentType(.newPassword)
@@ -64,16 +68,22 @@ struct SignUpView: View {
                                     lineWidth: 1
                                 )
                         )
+                        .accessibilityLabel("Mot de passe")
+                        .accessibilityHint("Minimum 6 caractères")
                 }
 
                 // CGU Checkbox
                 HStack(alignment: .top, spacing: Theme.Spacing.sm) {
-                    Image(systemName: viewModel.cguAccepted ? "checkmark.square.fill" : "square")
-                        .foregroundStyle(viewModel.cguAccepted ? Theme.Colors.accentPrimary : Theme.Colors.textSecondary)
-                        .font(.title3)
-                        .onTapGesture {
-                            viewModel.cguAccepted.toggle()
-                        }
+                    Button {
+                        viewModel.cguAccepted.toggle()
+                    } label: {
+                        Image(systemName: viewModel.cguAccepted ? "checkmark.square.fill" : "square")
+                            .foregroundStyle(viewModel.cguAccepted ? Theme.Colors.accentPrimary : Theme.Colors.textSecondary)
+                            .font(.title3)
+                    }
+                    .accessibilityLabel("Case à cocher CGU")
+                    .accessibilityValue(viewModel.cguAccepted ? "Cochée" : "Non cochée")
+                    .accessibilityHint("Cochez pour accepter les conditions générales")
 
                     Text("J'accepte les [Conditions Generales d'Utilisation](https://tagyourcar.com/cgu) et la [Politique de Confidentialite](https://tagyourcar.com/confidentialite)")
                         .font(Theme.Typography.caption)
@@ -87,6 +97,7 @@ struct SignUpView: View {
                         .font(Theme.Typography.bodySmall)
                         .foregroundStyle(Theme.Colors.error)
                         .multilineTextAlignment(.center)
+                        .accessibilityLabel("Erreur: \(errorMessage)")
                 }
 
                 Button {
@@ -107,10 +118,12 @@ struct SignUpView: View {
                     .cornerRadius(Theme.Radius.md)
                 }
                 .disabled(!viewModel.canSignUp || viewModel.state == .loading)
+                .accessibilityLabel(viewModel.state == .loading ? "Inscription en cours" : "Bouton s'inscrire")
             }
             .padding(.horizontal, Theme.Spacing.xl)
             .padding(.top, Theme.Spacing.lg)
         }
+        .scrollDismissesKeyboard(.interactively)
         .background(Theme.Colors.bgPrimary.ignoresSafeArea())
         .navigationBarBackButtonHidden(false)
     }

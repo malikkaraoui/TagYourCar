@@ -18,6 +18,10 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         } else {
             logger.warning("GoogleService-Info.plist not found — Firebase not configured")
         }
+        
+        // Perform health checks
+        HealthCheck.performStartupChecks()
+        
         return true
     }
 
