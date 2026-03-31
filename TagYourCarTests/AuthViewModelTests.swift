@@ -350,6 +350,35 @@ final class AuthViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.errorMessage, "Le mot de passe doit contenir au moins 6 caracteres.")
     }
 
+    func testSignUpFirebaseNotConfiguredErrorMessage() async {
+        mockService.shouldThrowOnSignUp = true
+        mockService.errorToThrow = TagYourCarError.firebaseNotConfigured
+        viewModel.email = "new@example.com"
+        viewModel.password = "123456"
+        viewModel.firstName = "Jean"
+        viewModel.lastName = "Dupont"
+
+        await viewModel.signUp()
+
+        XCTAssertEqual(
+            viewModel.errorMessage,
+            "Firebase n'est pas configure dans l'app. Ajoutez GoogleService-Info.plist puis relancez l'application."
+        )
+    }
+
+    func testSignUpOperationNotAllowedErrorMessage() async {
+        mockService.shouldThrowOnSignUp = true
+        mockService.errorToThrow = NSError(domain: "", code: 17006)
+        viewModel.email = "new@example.com"
+        viewModel.password = "123456"
+        viewModel.firstName = "Jean"
+        viewModel.lastName = "Dupont"
+
+        await viewModel.signUp()
+
+        XCTAssertEqual(viewModel.errorMessage, "L'inscription par email n'est pas activee dans Firebase.")
+    }
+
     func testSignUpErrorSetsErrorState() async {
         mockService.shouldThrowOnSignUp = true
         viewModel.email = "new@example.com"
