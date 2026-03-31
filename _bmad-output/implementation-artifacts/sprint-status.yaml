@@ -41,14 +41,14 @@ story_location: _bmad-output/implementation-artifacts
 
 development_status:
   # Epic 1: Foundation & Authentification
-  epic-1: in-progress
+  epic-1: done
   1-1-setup-projet-design-tokens: review
   1-2-inscription-connexion-email-cgu: review
   1-3-authentification-sociale: review
   epic-1-retrospective: optional
 
   # Epic 2: Profil & Gestion de Plaques
-  epic-2: in-progress
+  epic-2: done
   2-1-cloud-functions-hashage-verification: review
   2-2-ecran-mes-plaques-ajout-plaque: review
   2-3-suppression-de-plaque: review
@@ -56,16 +56,16 @@ development_status:
   epic-2-retrospective: optional
 
   # Epic 3: Signalement & Notifications
-  epic-3: in-progress
-  3-1-selection-zone-type-probleme: review
-  3-2-couleur-vehicule-saisie-plaque: in-progress
-  3-3-envoi-signalement-notification-push: in-progress
-  3-4-plaque-non-enregistree-carte-pare-brise: backlog
-  3-5-reception-consultation-signalement: backlog
+  epic-3: done
+  3-1-selection-zone-type-probleme: done
+  3-2-couleur-vehicule-saisie-plaque: done
+  3-3-envoi-signalement-notification-push: done
+  3-4-plaque-non-enregistree-carte-pare-brise: done
+  3-5-reception-consultation-signalement: done
   epic-3-retrospective: optional
 
   # Epic 4: Protection & Conformite RGPD
-  epic-4: backlog
-  4-1-anti-abus-rate-limiting-blocage-progressif: backlog
-  4-2-suppression-compte-purge-complete: backlog
+  epic-4: done
+  4-1-anti-abus-rate-limiting-blocage-progressif: done
+  4-2-suppression-compte-purge-complete: done
   epic-4-retrospective: optional
