@@ -4,6 +4,7 @@ struct SignUpView: View {
     @EnvironmentObject var authService: AuthService
     @StateObject private var viewModel: AuthViewModel
     @Environment(\.dismiss) private var dismiss
+    @State private var passwordVisible = false
 
     init(authService: AuthService) {
         _viewModel = StateObject(wrappedValue: AuthViewModel(authService: authService))
@@ -54,9 +55,20 @@ struct SignUpView: View {
                         .accessibilityLabel("Email")
                         .accessibilityHint(viewModel.email.isEmpty ? "Entrez votre email" : viewModel.isEmailValid ? "Email valide" : "Email invalide")
 
-                    SecureField("Mot de passe (6 caracteres min.)", text: $viewModel.password)
-                        .textContentType(.newPassword)
+                    ZStack(alignment: .trailing) {
+                        Group {
+                            if passwordVisible {
+                                TextField("Mot de passe (6 caracteres min.)", text: $viewModel.password)
+                                    .textContentType(.newPassword)
+                            } else {
+                                SecureField("Mot de passe (6 caracteres min.)", text: $viewModel.password)
+                                    .textContentType(.newPassword)
+                            }
+                        }
+                        .autocorrectionDisabled()
+                        .textInputAutocapitalization(.never)
                         .padding(Theme.Spacing.md)
+                        .padding(.trailing, 44)
                         .background(Theme.Colors.bgCard)
                         .cornerRadius(Theme.Radius.md)
                         .overlay(
@@ -68,8 +80,18 @@ struct SignUpView: View {
                                     lineWidth: 1
                                 )
                         )
-                        .accessibilityLabel("Mot de passe")
-                        .accessibilityHint("Minimum 6 caractères")
+
+                        Button {
+                            passwordVisible.toggle()
+                        } label: {
+                            Image(systemName: passwordVisible ? "eye.slash" : "eye")
+                                .foregroundStyle(Theme.Colors.textSecondary)
+                                .padding(.trailing, Theme.Spacing.md)
+                        }
+                        .accessibilityLabel(passwordVisible ? "Masquer le mot de passe" : "Afficher le mot de passe")
+                    }
+                    .accessibilityLabel("Mot de passe")
+                    .accessibilityHint("Minimum 6 caractères")
                 }
 
                 // CGU Checkbox

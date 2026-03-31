@@ -8,6 +8,7 @@ struct LoginView: View {
     @StateObject private var viewModel: AuthViewModel
 
     @State private var showSignUp = false
+    @State private var passwordVisible = false
 
     init(authService: AuthService) {
         _viewModel = StateObject(wrappedValue: AuthViewModel(authService: authService))
@@ -134,9 +135,20 @@ struct LoginView: View {
                             .accessibilityLabel("Champ email")
                             .accessibilityHint(viewModel.email.isEmpty ? "Entrez votre adresse email" : viewModel.isEmailValid ? "Email valide" : "Email invalide")
 
-                        SecureField("Mot de passe", text: $viewModel.password)
-                            .textContentType(.password)
+                        ZStack(alignment: .trailing) {
+                            Group {
+                                if passwordVisible {
+                                    TextField("Mot de passe", text: $viewModel.password)
+                                        .textContentType(.password)
+                                } else {
+                                    SecureField("Mot de passe", text: $viewModel.password)
+                                        .textContentType(.password)
+                                }
+                            }
+                            .autocorrectionDisabled()
+                            .textInputAutocapitalization(.never)
                             .padding(Theme.Spacing.md)
+                            .padding(.trailing, 44)
                             .background(Theme.Colors.bgCard)
                             .cornerRadius(Theme.Radius.md)
                             .overlay(
@@ -148,8 +160,18 @@ struct LoginView: View {
                                         lineWidth: 1
                                     )
                             )
-                            .accessibilityLabel("Champ mot de passe")
-                            .accessibilityHint("Minimum 6 caracteres")
+
+                            Button {
+                                passwordVisible.toggle()
+                            } label: {
+                                Image(systemName: passwordVisible ? "eye.slash" : "eye")
+                                    .foregroundStyle(Theme.Colors.textSecondary)
+                                    .padding(.trailing, Theme.Spacing.md)
+                            }
+                            .accessibilityLabel(passwordVisible ? "Masquer le mot de passe" : "Afficher le mot de passe")
+                        }
+                        .accessibilityLabel("Champ mot de passe")
+                        .accessibilityHint("Minimum 6 caracteres")
 
                         if !viewModel.password.isEmpty && !viewModel.isPasswordValid {
                             Text("6 caracteres minimum")
