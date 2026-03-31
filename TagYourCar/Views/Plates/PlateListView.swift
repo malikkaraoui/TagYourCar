@@ -89,6 +89,8 @@ struct PlateListView: View {
             }
             .padding(.horizontal, Theme.Spacing.xl)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Theme.Colors.bgPrimary)
     }
 
     private var plateList: some View {
@@ -114,6 +116,8 @@ struct PlateListView: View {
             }
         }
         .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .background(Theme.Colors.bgPrimary)
         .alert("Supprimer cette plaque ?", isPresented: $showDeleteConfirmation) {
             Button("Annuler", role: .cancel) {
                 plateToDelete = nil

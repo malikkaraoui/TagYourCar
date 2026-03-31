@@ -19,6 +19,7 @@ Package.resolved
 GoogleService-Info.plist
 GoogleService-Info-*.plist
 .firebaserc
+.firebase/
 firebase-debug.log
 firebase-debug.*.log
 ui-debug.log

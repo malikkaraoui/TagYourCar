@@ -19,7 +19,6 @@ settings:
   base:
     SWIFT_VERSION: "6.0"
     IPHONEOS_DEPLOYMENT_TARGET: "16.0"
-    CODE_SIGNING_ALLOWED: false
     ENABLE_USER_SCRIPT_SANDBOXING: false
 
 targets:
@@ -34,12 +33,14 @@ targets:
         CFBundleURLTypes:
           - CFBundleURLSchemes:
               - com.googleusercontent.apps.71145584282-aqt95t49louvmnurlq430ce8ajqop4q5
+        UILaunchStoryboardName: LaunchScreen
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.tagyourcar.app
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: K22558HU63
         GENERATE_INFOPLIST_FILE: false
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: true
-        INFOPLIST_KEY_UILaunchScreen_Generation: true
         INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait"
         INFOPLIST_KEY_CFBundleDisplayName: TagYourCar
         SWIFT_STRICT_CONCURRENCY: targeted
@@ -67,3 +68,22 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.tagyourcar.tests
         GENERATE_INFOPLIST_FILE: true
+
+schemes:
+  TagYourCar:
+    build:
+      targets:
+        TagYourCar: all
+        TagYourCarTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - name: TagYourCarTests
+    analyze:
+      config: Debug
+    archive:
+      config: Release
+    profile:
+      config: Release

@@ -7,6 +7,9 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
+            Theme.Colors.bgPrimary
+                .ignoresSafeArea()
+
             Group {
                 if authService.isAuthenticated {
                     TabBarView(plateService: plateService)
@@ -47,5 +50,7 @@ struct TabBarView: View {
                 }
         }
         .tint(Theme.Colors.accentPrimary)
+            .toolbarBackground(Theme.Colors.bgPrimary, for: .tabBar)
+            .toolbarBackground(.visible, for: .tabBar)
     }
 }
