@@ -18,9 +18,9 @@ struct ReportView: View {
                 case .problem:
                     problemStep
                 case .color:
-                    colorPlaceholder
+                    colorStep
                 case .plate:
-                    platePlaceholder
+                    plateStep
                 }
 
                 Spacer()
@@ -112,33 +112,61 @@ struct ReportView: View {
         .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
     }
 
-    // MARK: - Placeholders etapes 3 & 4 (Story 3.2)
+    // MARK: - Etape 3 : Selection de couleur
 
-    private var colorPlaceholder: some View {
+    private var colorStep: some View {
         VStack(spacing: Theme.Spacing.lg) {
-            Image(systemName: "paintpalette")
-                .font(.system(size: 48))
-                .foregroundStyle(Theme.Colors.accentMuted)
-            Text("Selection couleur")
+            Text(viewModel.stepTitle)
                 .font(Theme.Typography.h2)
                 .foregroundStyle(Theme.Colors.textPrimary)
-            Text("Bientot disponible — Story 3.2")
-                .font(Theme.Typography.body)
-                .foregroundStyle(Theme.Colors.textSecondary)
+
+            ColorSwatchGrid(selectedColor: Binding(
+                get: { viewModel.selectedColor },
+                set: { color in
+                    if let color {
+                        withAnimation(.easeInOut(duration: 0.25)) {
+                            viewModel.selectColor(color)
+                        }
+                    }
+                }
+            ))
         }
+        .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
     }
 
-    private var platePlaceholder: some View {
+    // MARK: - Etape 4 : Saisie plaque
+
+    private var plateStep: some View {
         VStack(spacing: Theme.Spacing.lg) {
-            Image(systemName: "textformat.123")
-                .font(.system(size: 48))
-                .foregroundStyle(Theme.Colors.accentMuted)
-            Text("Saisie plaque")
+            Text(viewModel.stepTitle)
                 .font(Theme.Typography.h2)
                 .foregroundStyle(Theme.Colors.textPrimary)
-            Text("Bientot disponible — Story 3.2")
+
+            Text("Saisissez la plaque du vehicule")
                 .font(Theme.Typography.body)
                 .foregroundStyle(Theme.Colors.textSecondary)
+
+            PlateTextField(text: $viewModel.plateText, isValid: viewModel.isPlateValid)
+                .padding(.horizontal, Theme.Spacing.xl)
+                .accessibilityLabel("Champ plaque d'immatriculation")
+                .accessibilityHint("Format AA-123-AA. L'envoi sera automatique.")
+
+            if viewModel.isPlateValid {
+                HStack(spacing: Theme.Spacing.sm) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(Theme.Colors.success)
+                    Text("Plaque valide — envoi en cours...")
+                        .font(Theme.Typography.bodySmall)
+                        .foregroundStyle(Theme.Colors.success)
+                }
+                .transition(.opacity)
+            }
+        }
+        .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
+        .onChange(of: viewModel.plateText) { _ in
+            if viewModel.isPlateValid {
+                // Envoi automatique — Story 3.3 implementera la logique backend
+            }
         }
     }
 
@@ -153,7 +181,7 @@ struct ReportView: View {
         case .color:
             viewModel.goBackToProblem()
         case .plate:
-            viewModel.currentStep = .color
+            viewModel.goBackToColor()
         }
     }
 }

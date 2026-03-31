@@ -178,6 +178,106 @@ final class ReportViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.stepTitle, "Couleur du vehicule")
     }
 
+    func testStepTitleForPlate() {
+        viewModel.selectZone(.front)
+        viewModel.selectProblem(.headlightsOn)
+        viewModel.selectColor(.blue)
+        XCTAssertEqual(viewModel.stepTitle, "Plaque d'immatriculation")
+    }
+
+    // MARK: - Selection de couleur
+
+    func testSelectColorSetsColorAndAdvancesToPlate() {
+        viewModel.selectZone(.front)
+        viewModel.selectProblem(.headlightsOn)
+        viewModel.selectColor(.blue)
+
+        XCTAssertEqual(viewModel.selectedColor, .blue)
+        XCTAssertEqual(viewModel.currentStep, .plate)
+    }
+
+    func testSelectColorResetsPlateText() {
+        viewModel.selectZone(.front)
+        viewModel.selectProblem(.headlightsOn)
+        viewModel.selectColor(.red)
+        viewModel.plateText = "AB-123-CD"
+
+        viewModel.selectColor(.blue)
+
+        XCTAssertEqual(viewModel.selectedColor, .blue)
+        XCTAssertTrue(viewModel.plateText.isEmpty)
+    }
+
+    // MARK: - Navigation arriere couleur
+
+    func testGoBackToColorKeepsZoneAndProblem() {
+        viewModel.selectZone(.front)
+        viewModel.selectProblem(.headlightsOn)
+        viewModel.selectColor(.red)
+
+        viewModel.goBackToColor()
+
+        XCTAssertEqual(viewModel.selectedZone, .front)
+        XCTAssertEqual(viewModel.selectedProblem, .headlightsOn)
+        XCTAssertNil(viewModel.selectedColor)
+        XCTAssertTrue(viewModel.plateText.isEmpty)
+        XCTAssertEqual(viewModel.currentStep, .color)
+    }
+
+    // MARK: - Validation plaque
+
+    func testIsPlateValidWithValidPlate() {
+        viewModel.plateText = "AB-123-CD"
+        XCTAssertTrue(viewModel.isPlateValid)
+    }
+
+    func testIsPlateValidWithInvalidPlate() {
+        viewModel.plateText = "AB-12"
+        XCTAssertFalse(viewModel.isPlateValid)
+    }
+
+    func testIsPlateValidWithEmptyText() {
+        XCTAssertFalse(viewModel.isPlateValid)
+    }
+
+    func testFormattedPlate() {
+        viewModel.plateText = "ab123cd"
+        XCTAssertEqual(viewModel.formattedPlate, "AB-123-CD")
+    }
+
+    // MARK: - Flow complet
+
+    func testFullFlowZoneToProblemToColorToPlate() {
+        viewModel.selectZone(.rear)
+        XCTAssertEqual(viewModel.currentStep, .problem)
+
+        viewModel.selectProblem(.trunkOpen)
+        XCTAssertEqual(viewModel.currentStep, .color)
+
+        viewModel.selectColor(.white)
+        XCTAssertEqual(viewModel.currentStep, .plate)
+
+        viewModel.plateText = "XY-789-ZZ"
+        XCTAssertTrue(viewModel.isPlateValid)
+
+        XCTAssertEqual(viewModel.selectedZone, .rear)
+        XCTAssertEqual(viewModel.selectedProblem, .trunkOpen)
+        XCTAssertEqual(viewModel.selectedColor, .white)
+    }
+
+    func testResetClearsPlateText() {
+        viewModel.selectZone(.front)
+        viewModel.selectProblem(.headlightsOn)
+        viewModel.selectColor(.black)
+        viewModel.plateText = "AB-123-CD"
+
+        viewModel.resetReport()
+
+        XCTAssertTrue(viewModel.plateText.isEmpty)
+        XCTAssertNil(viewModel.selectedColor)
+        XCTAssertEqual(viewModel.currentStep, .zone)
+    }
+
     // MARK: - ReportStep comparable
 
     func testReportStepComparable() {

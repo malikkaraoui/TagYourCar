@@ -6,6 +6,7 @@ final class ReportViewModel: ObservableObject {
     @Published var selectedZone: VehicleZone?
     @Published var selectedProblem: ProblemType?
     @Published var selectedColor: VehicleColor?
+    @Published var plateText = ""
     @Published var currentStep: ReportStep = .zone
     @Published var state: ViewState = .idle
 
@@ -54,10 +55,25 @@ final class ReportViewModel: ObservableObject {
         logger.info("Retour a la selection de probleme")
     }
 
+    func selectColor(_ color: VehicleColor) {
+        selectedColor = color
+        plateText = ""
+        currentStep = .plate
+        logger.info("Couleur selectionnee : \(color.rawValue)")
+    }
+
+    func goBackToColor() {
+        selectedColor = nil
+        plateText = ""
+        currentStep = .color
+        logger.info("Retour a la selection de couleur")
+    }
+
     func resetReport() {
         selectedZone = nil
         selectedProblem = nil
         selectedColor = nil
+        plateText = ""
         currentStep = .zone
         state = .idle
         logger.info("Signalement reinitialise")
@@ -68,6 +84,14 @@ final class ReportViewModel: ObservableObject {
     var availableProblems: [ProblemType] {
         guard let zone = selectedZone else { return [] }
         return ProblemType.problems(for: zone)
+    }
+
+    var formattedPlate: String {
+        PlateValidator.format(plateText)
+    }
+
+    var isPlateValid: Bool {
+        PlateValidator.isValid(formattedPlate)
     }
 
     var stepTitle: String {
