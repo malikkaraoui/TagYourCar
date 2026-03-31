@@ -59,7 +59,7 @@ development_status:
   epic-3: in-progress
   3-1-selection-zone-type-probleme: review
   3-2-couleur-vehicule-saisie-plaque: in-progress
-  3-3-envoi-signalement-notification-push: backlog
+  3-3-envoi-signalement-notification-push: in-progress
   3-4-plaque-non-enregistree-carte-pare-brise: backlog
   3-5-reception-consultation-signalement: backlog
   epic-3-retrospective: optional

@@ -276,6 +276,31 @@ final class ReportViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.plateText.isEmpty)
         XCTAssertNil(viewModel.selectedColor)
         XCTAssertEqual(viewModel.currentStep, .zone)
+        XCTAssertNil(viewModel.reportResult)
+        XCTAssertFalse(viewModel.showConfirmation)
+        XCTAssertFalse(viewModel.isSubmitting)
+    }
+
+    // MARK: - Submit report
+
+    func testSubmitReportRequiresAllFields() async {
+        // Sans zone selectionnee, submitReport ne fait rien
+        viewModel.plateText = "AB-123-CD"
+        await viewModel.submitReport(uid: "test-uid")
+
+        XCTAssertFalse(viewModel.isSubmitting)
+        XCTAssertFalse(viewModel.showConfirmation)
+    }
+
+    func testSubmitReportRequiresValidPlate() async {
+        viewModel.selectZone(.front)
+        viewModel.selectProblem(.headlightsOn)
+        viewModel.selectColor(.blue)
+        viewModel.plateText = "AB-12" // invalide
+
+        await viewModel.submitReport(uid: "test-uid")
+
+        XCTAssertFalse(viewModel.showConfirmation)
     }
 
     // MARK: - ReportStep comparable

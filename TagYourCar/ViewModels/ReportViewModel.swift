@@ -9,8 +9,16 @@ final class ReportViewModel: ObservableObject {
     @Published var plateText = ""
     @Published var currentStep: ReportStep = .zone
     @Published var state: ViewState = .idle
+    @Published var reportResult: ReportResult?
+    @Published var showConfirmation = false
+    @Published var isSubmitting = false
 
+    private let reportService: ReportService
     private let logger = Logger(subsystem: "com.tagyourcar", category: "ReportViewModel")
+
+    init(reportService: ReportService = ReportService()) {
+        self.reportService = reportService
+    }
 
     enum ReportStep: Int, Comparable {
         case zone = 0
@@ -69,6 +77,36 @@ final class ReportViewModel: ObservableObject {
         logger.info("Retour a la selection de couleur")
     }
 
+    func submitReport(uid: String) async {
+        guard let zone = selectedZone,
+              let problem = selectedProblem,
+              let color = selectedColor,
+              isPlateValid,
+              !isSubmitting else { return }
+
+        isSubmitting = true
+        state = .loading
+
+        do {
+            let result = try await reportService.submitReport(
+                zone: zone,
+                problemType: problem,
+                vehicleColor: color,
+                plate: formattedPlate,
+                reporterUid: uid
+            )
+            reportResult = result
+            showConfirmation = true
+            state = .loaded
+            logger.info("Signalement soumis — resultat : \(String(describing: result))")
+        } catch {
+            state = .error(mapError(error))
+            logger.error("Echec envoi signalement : \(error.localizedDescription)")
+        }
+
+        isSubmitting = false
+    }
+
     func resetReport() {
         selectedZone = nil
         selectedProblem = nil
@@ -76,7 +114,17 @@ final class ReportViewModel: ObservableObject {
         plateText = ""
         currentStep = .zone
         state = .idle
+        reportResult = nil
+        showConfirmation = false
+        isSubmitting = false
         logger.info("Signalement reinitialise")
+    }
+
+    private func mapError(_ error: Error) -> String {
+        if let tycError = error as? TagYourCarError {
+            return tycError.errorDescription ?? "Erreur inconnue."
+        }
+        return "Erreur lors de l'envoi du signalement. Reessayez."
     }
 
     // MARK: - Computed

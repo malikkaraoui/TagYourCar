@@ -1,52 +1,69 @@
 import SwiftUI
 
 struct ReportView: View {
+    @EnvironmentObject var authService: AuthService
     @StateObject private var viewModel = ReportViewModel()
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                // Indicateur d'etape
-                stepIndicator
+        ZStack {
+            NavigationStack {
+                VStack(spacing: 0) {
+                    stepIndicator
 
-                Spacer()
+                    Spacer()
 
-                // Contenu selon l'etape
-                switch viewModel.currentStep {
-                case .zone:
-                    zoneStep
-                case .problem:
-                    problemStep
-                case .color:
-                    colorStep
-                case .plate:
-                    plateStep
+                    switch viewModel.currentStep {
+                    case .zone:
+                        zoneStep
+                    case .problem:
+                        problemStep
+                    case .color:
+                        colorStep
+                    case .plate:
+                        plateStep
+                    }
+
+                    Spacer()
                 }
-
-                Spacer()
-            }
-            .background(Theme.Colors.bgPrimary.ignoresSafeArea())
-            .navigationTitle("Signaler")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                if viewModel.currentStep != .zone {
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.25)) {
-                                goBack()
+                .background(Theme.Colors.bgPrimary.ignoresSafeArea())
+                .navigationTitle("Signaler")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    if viewModel.currentStep != .zone && !viewModel.isSubmitting {
+                        ToolbarItem(placement: .topBarLeading) {
+                            Button {
+                                withAnimation(.easeInOut(duration: 0.25)) {
+                                    goBack()
+                                }
+                            } label: {
+                                HStack(spacing: Theme.Spacing.xs) {
+                                    Image(systemName: "chevron.left")
+                                    Text("Retour")
+                                }
+                                .foregroundStyle(Theme.Colors.accentInteractive)
                             }
-                        } label: {
-                            HStack(spacing: Theme.Spacing.xs) {
-                                Image(systemName: "chevron.left")
-                                Text("Retour")
-                            }
-                            .foregroundStyle(Theme.Colors.accentInteractive)
+                            .accessibilityLabel("Retour a l'etape precedente")
                         }
-                        .accessibilityLabel("Retour a l'etape precedente")
                     }
                 }
             }
+            .disabled(viewModel.showConfirmation)
+
+            // Ecran de confirmation par-dessus
+            if viewModel.showConfirmation, let result = viewModel.reportResult {
+                ConfirmationView(
+                    variant: result == .sent ? .success : .notRegistered,
+                    onDismiss: {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            viewModel.resetReport()
+                        }
+                    }
+                )
+                .transition(.opacity)
+                .zIndex(1)
+            }
         }
+        .animation(.easeInOut(duration: 0.3), value: viewModel.showConfirmation)
     }
 
     // MARK: - Indicateur d'etape
@@ -134,7 +151,7 @@ struct ReportView: View {
         .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
     }
 
-    // MARK: - Etape 4 : Saisie plaque
+    // MARK: - Etape 4 : Saisie plaque + envoi automatique
 
     private var plateStep: some View {
         VStack(spacing: Theme.Spacing.lg) {
@@ -150,22 +167,32 @@ struct ReportView: View {
                 .padding(.horizontal, Theme.Spacing.xl)
                 .accessibilityLabel("Champ plaque d'immatriculation")
                 .accessibilityHint("Format AA-123-AA. L'envoi sera automatique.")
+                .disabled(viewModel.isSubmitting)
 
-            if viewModel.isPlateValid {
+            if viewModel.isSubmitting {
                 HStack(spacing: Theme.Spacing.sm) {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(Theme.Colors.success)
-                    Text("Plaque valide — envoi en cours...")
+                    ProgressView()
+                        .tint(Theme.Colors.accentPrimary)
+                    Text("Envoi en cours...")
                         .font(Theme.Typography.bodySmall)
-                        .foregroundStyle(Theme.Colors.success)
+                        .foregroundStyle(Theme.Colors.textSecondary)
                 }
                 .transition(.opacity)
+            } else if case .error(let message) = viewModel.state {
+                Text(message)
+                    .font(Theme.Typography.bodySmall)
+                    .foregroundStyle(Theme.Colors.error)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, Theme.Spacing.xl)
             }
         }
         .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
         .onChange(of: viewModel.plateText) { _ in
-            if viewModel.isPlateValid {
-                // Envoi automatique — Story 3.3 implementera la logique backend
+            if viewModel.isPlateValid && !viewModel.isSubmitting {
+                let uid = authService.currentUser?.uid ?? ""
+                Task {
+                    await viewModel.submitReport(uid: uid)
+                }
             }
         }
     }
