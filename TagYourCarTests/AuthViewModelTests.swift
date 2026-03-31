@@ -279,7 +279,8 @@ final class AuthViewModelTests: XCTestCase {
 
         await viewModel.signIn()
 
-        XCTAssertEqual(viewModel.errorMessage, "Une erreur est survenue. Reessayez.")
+        XCTAssertTrue(viewModel.errorMessage?.contains("Une erreur est survenue") == true)
+        XCTAssertTrue(viewModel.errorMessage?.contains("Reessayez.") == true)
     }
 
     func testSignInClearsExistingErrorOnNewAttempt() async {

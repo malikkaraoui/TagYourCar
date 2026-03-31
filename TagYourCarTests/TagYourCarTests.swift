@@ -68,6 +68,7 @@ final class TagYourCarErrorTests: XCTestCase {
         XCTAssertNotNil(TagYourCarError.plateAlreadyRegistered.errorDescription)
         XCTAssertNotNil(TagYourCarError.reportFailed.errorDescription)
         XCTAssertNotNil(TagYourCarError.notificationPermissionDenied.errorDescription)
+        XCTAssertNotNil(TagYourCarError.firebaseNotConfigured.errorDescription)
         XCTAssertNotNil(TagYourCarError.unknownError.errorDescription)
     }
 }
