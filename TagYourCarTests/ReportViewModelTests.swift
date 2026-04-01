@@ -281,10 +281,9 @@ final class ReportViewModelTests: XCTestCase {
         XCTAssertFalse(viewModel.isSubmitting)
     }
 
-    // MARK: - Submit report
+    // MARK: - Submit report (guards)
 
     func testSubmitReportRequiresAllFields() async {
-        // Sans zone selectionnee, submitReport ne fait rien
         viewModel.plateText = "AB-123-CD"
         await viewModel.submitReport()
 
@@ -301,6 +300,104 @@ final class ReportViewModelTests: XCTestCase {
         await viewModel.submitReport()
 
         XCTAssertFalse(viewModel.showConfirmation)
+    }
+
+    // MARK: - Submit report (avec mock service)
+
+    func testSubmitReportSuccessSent() async {
+        let mock = MockReportService()
+        mock.resultToReturn = .sent
+        let vm = ReportViewModel(reportService: mock)
+
+        vm.selectZone(.front)
+        vm.selectProblem(.headlightsOn)
+        vm.selectColor(.blue)
+        vm.plateText = "AB-123-CD"
+
+        await vm.submitReport()
+
+        XCTAssertTrue(mock.submitReportCalled)
+        XCTAssertEqual(mock.lastZone, .front)
+        XCTAssertEqual(mock.lastProblemType, .headlightsOn)
+        XCTAssertEqual(mock.lastVehicleColor, .blue)
+        XCTAssertEqual(mock.lastPlate, "AB-123-CD")
+        XCTAssertEqual(vm.reportResult, .sent)
+        XCTAssertTrue(vm.showConfirmation)
+        XCTAssertFalse(vm.isSubmitting)
+    }
+
+    func testSubmitReportSuccessNotRegistered() async {
+        let mock = MockReportService()
+        mock.resultToReturn = .notRegistered
+        let vm = ReportViewModel(reportService: mock)
+
+        vm.selectZone(.rear)
+        vm.selectProblem(.trunkOpen)
+        vm.selectColor(.white)
+        vm.plateText = "XY-789-ZZ"
+
+        await vm.submitReport()
+
+        XCTAssertEqual(vm.reportResult, .notRegistered)
+        XCTAssertTrue(vm.showConfirmation)
+    }
+
+    func testSubmitReportNetworkError() async {
+        let mock = MockReportService()
+        mock.shouldThrow = true
+        mock.errorToThrow = TagYourCarError.reportFailed
+        let vm = ReportViewModel(reportService: mock)
+
+        vm.selectZone(.front)
+        vm.selectProblem(.headlightsOn)
+        vm.selectColor(.red)
+        vm.plateText = "AB-123-CD"
+
+        await vm.submitReport()
+
+        XCTAssertTrue(mock.submitReportCalled)
+        XCTAssertNil(vm.reportResult)
+        XCTAssertFalse(vm.showConfirmation)
+        XCTAssertFalse(vm.isSubmitting)
+        if case .error = vm.state {} else {
+            XCTFail("State devrait etre .error apres echec")
+        }
+    }
+
+    func testSubmitReportBlocked() async {
+        let mock = MockReportService()
+        mock.shouldThrow = true
+        mock.errorToThrow = TagYourCarError.reportBlocked("Trop de signalements.")
+        let vm = ReportViewModel(reportService: mock)
+
+        vm.selectZone(.middle)
+        vm.selectProblem(.windowOpen)
+        vm.selectColor(.black)
+        vm.plateText = "ZZ-999-AA"
+
+        await vm.submitReport()
+
+        if case .error(let msg) = vm.state {
+            XCTAssertTrue(msg.contains("signalements"))
+        } else {
+            XCTFail("State devrait etre .error avec message anti-abus")
+        }
+    }
+
+    func testSubmitReportPreventsDoubleSubmission() async {
+        let mock = MockReportService()
+        let vm = ReportViewModel(reportService: mock)
+
+        vm.selectZone(.front)
+        vm.selectProblem(.headlightsOn)
+        vm.selectColor(.blue)
+        vm.plateText = "AB-123-CD"
+
+        // Simuler isSubmitting deja en cours
+        vm.isSubmitting = true
+        await vm.submitReport()
+
+        XCTAssertFalse(mock.submitReportCalled)
     }
 
     // MARK: - ReportStep comparable

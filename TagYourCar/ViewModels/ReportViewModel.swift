@@ -13,10 +13,10 @@ final class ReportViewModel: ObservableObject {
     @Published var showConfirmation = false
     @Published var isSubmitting = false
 
-    private let reportService: ReportService
+    private let reportService: any ReportServiceProtocol
     private let logger = Logger(subsystem: "com.tagyourcar", category: "ReportViewModel")
 
-    init(reportService: ReportService = ReportService()) {
+    init(reportService: any ReportServiceProtocol = ReportService()) {
         self.reportService = reportService
     }
 
