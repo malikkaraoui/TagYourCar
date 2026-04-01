@@ -32,7 +32,7 @@ struct LoginView: View {
                             .foregroundStyle(Theme.Colors.textPrimary)
                             .tracking(-0.5)
 
-                        Text("Signalez. Protegez. Communaute.")
+                        Text("Signalez. Protégez. Communauté.")
                             .font(Theme.Typography.bodySmall)
                             .foregroundStyle(Theme.Colors.textSecondary)
                     }
@@ -51,7 +51,7 @@ struct LoginView: View {
                                     do {
                                         try await authService.handleAppleSignIn(authorization: authorization)
                                     } catch {
-                                        viewModel.errorMessage = "Connexion Apple echouee."
+                                        viewModel.errorMessage = "Connexion Apple échouée."
                                     }
                                 case .failure:
                                     break // Annulation silencieuse
@@ -70,7 +70,7 @@ struct LoginView: View {
                                 } catch let error as GIDSignInError where error.code == .canceled {
                                     return // Annulation silencieuse
                                 } catch {
-                                    viewModel.errorMessage = "Connexion Google echouee."
+                                    viewModel.errorMessage = "Connexion Google échouée."
                                 }
                             }
                         } label: {
@@ -99,7 +99,7 @@ struct LoginView: View {
                                     if nsError.code == AuthErrorCode.webContextCancelled.rawValue || nsError.code == AuthErrorCode.webContextAlreadyPresented.rawValue {
                                         return // Annulation silencieuse
                                     }
-                                    viewModel.errorMessage = "Connexion GitHub echouee."
+                                    viewModel.errorMessage = "Connexion GitHub échouée."
                                 }
                             }
                         } label: {
@@ -188,7 +188,7 @@ struct LoginView: View {
                         .accessibilityHint("Minimum 6 caracteres")
 
                         if !viewModel.password.isEmpty && !viewModel.isPasswordValid {
-                            Text("6 caracteres minimum")
+                            Text("6 caractères minimum")
                                 .font(Theme.Typography.caption)
                                 .foregroundStyle(Theme.Colors.error)
                                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -239,7 +239,7 @@ struct LoginView: View {
                         }
                         .font(Theme.Typography.bodySmall)
                     }
-                    .accessibilityLabel("Creer un compte")
+                    .accessibilityLabel("Créer un compte")
 
                     Spacer()
                 }
