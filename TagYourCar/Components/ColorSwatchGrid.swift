@@ -3,7 +3,7 @@ import UIKit
 
 struct ColorSwatchGrid: View {
     @Binding var selectedColor: VehicleColor?
-    private let impactLight = UIImpactFeedbackGenerator(style: .light)
+    private let impactMedium = UIImpactFeedbackGenerator(style: .medium)
 
     private let columns = [
         GridItem(.flexible(), spacing: Theme.Spacing.md),
@@ -26,8 +26,8 @@ struct ColorSwatchGrid: View {
         let isSelected = selectedColor == color
 
         Button {
-            impactLight.prepare()
-            impactLight.impactOccurred()
+            impactMedium.prepare()
+            impactMedium.impactOccurred(intensity: 0.8)
             selectedColor = color
         } label: {
             ZStack {
@@ -55,6 +55,8 @@ struct ColorSwatchGrid: View {
                 }
             }
             .frame(minWidth: 44, minHeight: 44)
+            .scaleEffect(isSelected ? 1.15 : 1.0)
+            .animation(.spring(response: 0.25, dampingFraction: 0.55), value: isSelected)
         }
         .accessibilityLabel(accessibilityLabel(for: color))
         .accessibilityAddTraits(isSelected ? .isSelected : [])

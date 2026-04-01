@@ -38,15 +38,15 @@ struct ProblemTypePicker: View {
                 Image(systemName: sfSymbol(for: problem))
                     .font(.system(size: 32))
                     .frame(width: 64, height: 64)
-                    .background(isSelected ? Theme.Colors.accentPrimary : Theme.Colors.bgCard)
+                    .background(isSelected ? Theme.Colors.accentInteractive : Theme.Colors.bgCard)
                     .foregroundStyle(isSelected ? Theme.Colors.textOnAccent : Theme.Colors.accentSubtle)
                     .cornerRadius(Theme.Radius.md)
                     .overlay(
                         RoundedRectangle(cornerRadius: Theme.Radius.md)
-                            .stroke(isSelected ? Theme.Colors.accentInteractive : Theme.Colors.bgSeparator, lineWidth: 2)
+                            .stroke(isSelected ? Theme.Colors.accentInteractive : Theme.Colors.bgSeparator, lineWidth: isSelected ? 3 : 1)
                     )
-                    .scaleEffect(isSelected ? 0.95 : 1.0)
-                    .animation(.easeInOut(duration: 0.15), value: isSelected)
+                    .scaleEffect(isSelected ? 1.1 : 1.0)
+                    .animation(.spring(response: 0.25, dampingFraction: 0.55), value: isSelected)
             }
         }
         .accessibilityLabel(accessibilityLabel(for: problem))

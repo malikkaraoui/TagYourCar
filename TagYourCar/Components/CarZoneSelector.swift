@@ -3,7 +3,7 @@ import UIKit
 
 struct CarZoneSelector: View {
     @Binding var selectedZone: VehicleZone?
-    private let impactLight = UIImpactFeedbackGenerator(style: .light)
+    private let impactMedium = UIImpactFeedbackGenerator(style: .medium)
 
     var body: some View {
         VStack(spacing: Theme.Spacing.sm) {
@@ -24,8 +24,8 @@ struct CarZoneSelector: View {
         let isSelected = selectedZone == zone
 
         Button {
-            impactLight.prepare()
-            impactLight.impactOccurred()
+            impactMedium.prepare()
+            impactMedium.impactOccurred(intensity: 0.8)
             selectedZone = zone
         } label: {
             ZoneShape(zone: zone)
@@ -48,8 +48,8 @@ struct CarZoneSelector: View {
                 }
                 .cardShadow()
         }
-        .scaleEffect(isSelected ? 1.02 : 1.0)
-        .animation(Theme.Animation.snappy, value: isSelected)
+        .scaleEffect(isSelected ? 1.05 : 1.0)
+        .animation(.spring(response: 0.25, dampingFraction: 0.6), value: isSelected)
         .accessibilityLabel(accessibilityLabel(for: zone))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
