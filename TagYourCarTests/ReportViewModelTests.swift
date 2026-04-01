@@ -164,18 +164,18 @@ final class ReportViewModelTests: XCTestCase {
     // MARK: - Step title
 
     func testStepTitleForZone() {
-        XCTAssertEqual(viewModel.stepTitle, "Ou est le probleme ?")
+        XCTAssertEqual(viewModel.stepTitle, "Où est le problème ?")
     }
 
     func testStepTitleForProblem() {
         viewModel.selectZone(.front)
-        XCTAssertEqual(viewModel.stepTitle, "Quel probleme ?")
+        XCTAssertEqual(viewModel.stepTitle, "Quel problème ?")
     }
 
     func testStepTitleForColor() {
         viewModel.selectZone(.front)
         viewModel.selectProblem(.headlightsOn)
-        XCTAssertEqual(viewModel.stepTitle, "Couleur du vehicule")
+        XCTAssertEqual(viewModel.stepTitle, "Couleur du véhicule")
     }
 
     func testStepTitleForPlate() {

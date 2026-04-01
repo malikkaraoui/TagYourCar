@@ -38,14 +38,14 @@ final class ReportViewModel: ObservableObject {
         selectedProblem = nil
         selectedColor = nil
         currentStep = .problem
-        logger.info("Zone selectionnee : \(zone.rawValue)")
+        logger.info("Zone sélectionnée : \(zone.rawValue)")
     }
 
     func selectProblem(_ problem: ProblemType) {
         selectedProblem = problem
         selectedColor = nil
         currentStep = .color
-        logger.info("Probleme selectionne : \(problem.rawValue)")
+        logger.info("Problème sélectionné : \(problem.rawValue)")
     }
 
     func goBackToZone() {
@@ -53,14 +53,14 @@ final class ReportViewModel: ObservableObject {
         selectedProblem = nil
         selectedColor = nil
         currentStep = .zone
-        logger.info("Retour a la selection de zone")
+        logger.info("Retour à la sélection de zone")
     }
 
     func goBackToProblem() {
         selectedProblem = nil
         selectedColor = nil
         currentStep = .problem
-        logger.info("Retour a la selection de probleme")
+        logger.info("Retour à la sélection de problème")
     }
 
     func selectColor(_ color: VehicleColor) {
@@ -74,7 +74,7 @@ final class ReportViewModel: ObservableObject {
         selectedColor = nil
         plateText = ""
         currentStep = .color
-        logger.info("Retour a la selection de couleur")
+        logger.info("Retour à la sélection de couleur")
     }
 
     func submitReport() async {
@@ -116,14 +116,14 @@ final class ReportViewModel: ObservableObject {
         reportResult = nil
         showConfirmation = false
         isSubmitting = false
-        logger.info("Signalement reinitialise")
+        logger.info("Signalement réinitialisé")
     }
 
     private func mapError(_ error: Error) -> String {
         if let tycError = error as? TagYourCarError {
             return tycError.errorDescription ?? "Erreur inconnue."
         }
-        return "Erreur lors de l'envoi du signalement. Reessayez."
+        return "Erreur lors de l'envoi du signalement. Réessayez."
     }
 
     // MARK: - Computed
@@ -143,9 +143,9 @@ final class ReportViewModel: ObservableObject {
 
     var stepTitle: String {
         switch currentStep {
-        case .zone: return "Ou est le probleme ?"
-        case .problem: return "Quel probleme ?"
-        case .color: return "Couleur du vehicule"
+        case .zone: return "Où est le problème ?"
+        case .problem: return "Quel problème ?"
+        case .color: return "Couleur du véhicule"
         case .plate: return "Plaque d'immatriculation"
         }
     }
