@@ -14,10 +14,10 @@ struct SignUpView: View {
         ScrollView {
             VStack(spacing: Theme.Spacing.lg) {
                 VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
-                    Text("Creer un compte")
+                    Text("Créer un compte")
                         .font(Theme.Typography.h1)
                         .foregroundStyle(Theme.Colors.textPrimary)
-                    Text("Rejoignez la communaute TagYourCar")
+                    Text("Rejoignez la communauté TagYourCar")
                         .font(Theme.Typography.bodySmall)
                         .foregroundStyle(Theme.Colors.textSecondary)
                 }
@@ -25,7 +25,7 @@ struct SignUpView: View {
 
                 VStack(spacing: Theme.Spacing.md) {
                     HStack(spacing: Theme.Spacing.sm) {
-                        TextField("Prenom", text: $viewModel.firstName)
+                        TextField("Prénom", text: $viewModel.firstName)
                             .textContentType(.givenName)
                             .padding(Theme.Spacing.md)
                             .background(Theme.Colors.bgCard)
@@ -112,7 +112,7 @@ struct SignUpView: View {
                     .accessibilityValue(viewModel.cguAccepted ? "Cochée" : "Non cochée")
                     .accessibilityHint("Cochez pour accepter les conditions générales")
 
-                    Text("J'accepte les [Conditions Generales d'Utilisation](https://tagyourcar.com/cgu) et la [Politique de Confidentialite](https://tagyourcar.com/confidentialite)")
+                    Text("J'accepte les [Conditions Générales d'Utilisation](https://tagyourcar.com/cgu) et la [Politique de Confidentialité](https://tagyourcar.com/confidentialite)")
                         .font(Theme.Typography.caption)
                         .foregroundStyle(Theme.Colors.textSecondary)
                         .tint(Theme.Colors.accentInteractive)
