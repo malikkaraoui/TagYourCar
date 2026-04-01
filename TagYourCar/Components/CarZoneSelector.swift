@@ -29,18 +29,27 @@ struct CarZoneSelector: View {
             selectedZone = zone
         } label: {
             ZoneShape(zone: zone)
-                .fill(isSelected ? Theme.Colors.accentPrimary : Theme.Colors.bgSecondary)
+                .fill(isSelected ? Theme.Colors.accentInteractive : Theme.Colors.bgCard)
                 .frame(height: zoneHeight(for: zone))
                 .overlay(
                     ZoneShape(zone: zone)
-                        .stroke(isSelected ? Theme.Colors.accentInteractive : Theme.Colors.bgSeparator, lineWidth: 2)
+                        .stroke(isSelected ? Theme.Colors.accentInteractive : Theme.Colors.bgSeparator, lineWidth: isSelected ? 2 : 1)
                 )
                 .overlay {
-                    zoneIcon(for: zone)
-                        .font(.system(size: 28))
-                        .foregroundStyle(isSelected ? Theme.Colors.textOnAccent : Theme.Colors.textSecondary)
+                    VStack(spacing: Theme.Spacing.xs) {
+                        zoneIcon(for: zone)
+                            .font(.system(size: 28, weight: .medium))
+                        Text(zoneLabel(for: zone))
+                            .font(Theme.Typography.captionSmall)
+                            .textCase(.uppercase)
+                            .tracking(0.5)
+                    }
+                    .foregroundStyle(isSelected ? Theme.Colors.textOnAccent : Theme.Colors.textSecondary)
                 }
+                .cardShadow()
         }
+        .scaleEffect(isSelected ? 1.02 : 1.0)
+        .animation(Theme.Animation.snappy, value: isSelected)
         .accessibilityLabel(accessibilityLabel(for: zone))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
@@ -62,6 +71,14 @@ struct CarZoneSelector: View {
             Image(systemName: "car.side")
         case .rear:
             Image(systemName: "car.rear")
+        }
+    }
+
+    private func zoneLabel(for zone: VehicleZone) -> String {
+        switch zone {
+        case .front: return "Avant"
+        case .middle: return "Milieu"
+        case .rear: return "Arriere"
         }
     }
 

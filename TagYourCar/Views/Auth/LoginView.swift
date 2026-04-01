@@ -18,11 +18,25 @@ struct LoginView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: Theme.Spacing.lg) {
-                    Spacer().frame(height: Theme.Spacing.xl)
 
-                    Text("TagYourCar")
-                        .font(Theme.Typography.display)
-                        .foregroundStyle(Theme.Colors.accentPrimary)
+                    // Hero
+                    VStack(spacing: Theme.Spacing.sm) {
+                        Spacer().frame(height: Theme.Spacing.xxl)
+
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .font(.system(size: 44))
+                            .foregroundStyle(Theme.Colors.accentInteractive)
+
+                        Text("TagYourCar")
+                            .font(Theme.Typography.display)
+                            .foregroundStyle(Theme.Colors.textPrimary)
+                            .tracking(-0.5)
+
+                        Text("Signalez. Protegez. Communaute.")
+                            .font(Theme.Typography.bodySmall)
+                            .foregroundStyle(Theme.Colors.textSecondary)
+                    }
+                    .padding(.bottom, Theme.Spacing.md)
 
                     // Social Sign-In Buttons
                     VStack(spacing: Theme.Spacing.sm) {
@@ -199,23 +213,33 @@ struct LoginView: View {
                                     .tint(Theme.Colors.textOnAccent)
                             } else {
                                 Text("Se connecter")
+                                    .font(Theme.Typography.bodyMedium)
                             }
                         }
                         .frame(maxWidth: .infinity)
-                        .padding(Theme.Spacing.md)
+                        .frame(height: 52)
                         .background(viewModel.canSignIn ? Theme.Colors.accentInteractive : Theme.Colors.accentMuted)
                         .foregroundStyle(Theme.Colors.textOnAccent)
-                        .cornerRadius(Theme.Radius.md)
+                        .cornerRadius(Theme.Radius.lg)
                     }
                     .disabled(!viewModel.canSignIn || viewModel.state == .loading)
+                    .accentGlow()
+                    .opacity(viewModel.canSignIn ? 1 : 0.6)
                     .accessibilityLabel(viewModel.state == .loading ? "Connexion en cours" : "Bouton se connecter")
 
-                    Button("Pas encore de compte ? S'inscrire") {
+                    Button {
                         showSignUp = true
+                    } label: {
+                        HStack(spacing: Theme.Spacing.xs) {
+                            Text("Pas encore de compte ?")
+                                .foregroundStyle(Theme.Colors.textSecondary)
+                            Text("S'inscrire")
+                                .fontWeight(.semibold)
+                                .foregroundStyle(Theme.Colors.accentInteractive)
+                        }
+                        .font(Theme.Typography.bodySmall)
                     }
-                    .font(Theme.Typography.bodySmall)
-                    .foregroundStyle(Theme.Colors.accentInteractive)
-                    .accessibilityLabel("Créer un compte")
+                    .accessibilityLabel("Creer un compte")
 
                     Spacer()
                 }

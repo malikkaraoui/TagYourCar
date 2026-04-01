@@ -13,10 +13,15 @@ struct SignUpView: View {
     var body: some View {
         ScrollView {
             VStack(spacing: Theme.Spacing.lg) {
-                Text("Creer un compte")
-                    .font(Theme.Typography.h1)
-                    .foregroundStyle(Theme.Colors.textPrimary)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                    Text("Creer un compte")
+                        .font(Theme.Typography.h1)
+                        .foregroundStyle(Theme.Colors.textPrimary)
+                    Text("Rejoignez la communaute TagYourCar")
+                        .font(Theme.Typography.bodySmall)
+                        .foregroundStyle(Theme.Colors.textSecondary)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
 
                 VStack(spacing: Theme.Spacing.md) {
                     HStack(spacing: Theme.Spacing.sm) {
@@ -131,15 +136,18 @@ struct SignUpView: View {
                                 .tint(Theme.Colors.textOnAccent)
                         } else {
                             Text("S'inscrire")
+                                .font(Theme.Typography.bodyMedium)
                         }
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(Theme.Spacing.md)
+                    .frame(height: 52)
                     .background(viewModel.canSignUp ? Theme.Colors.accentInteractive : Theme.Colors.accentMuted)
                     .foregroundStyle(Theme.Colors.textOnAccent)
-                    .cornerRadius(Theme.Radius.md)
+                    .cornerRadius(Theme.Radius.lg)
                 }
                 .disabled(!viewModel.canSignUp || viewModel.state == .loading)
+                .accentGlow()
+                .opacity(viewModel.canSignUp ? 1 : 0.6)
                 .accessibilityLabel(viewModel.state == .loading ? "Inscription en cours" : "Bouton s'inscrire")
             }
             .padding(.horizontal, Theme.Spacing.xl)

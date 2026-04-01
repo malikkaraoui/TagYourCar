@@ -29,17 +29,19 @@ enum Theme {
         static let textPlaceholder = Color("TextPlaceholder")
     }
 
-    // MARK: - Typography
+    // MARK: - Typography (SF Pro — tight tracking pour les titres, aere pour le body)
 
     enum Typography {
-        static let display = Font.system(size: 34, weight: .bold)
-        static let h1 = Font.system(size: 28, weight: .semibold)
-        static let h2 = Font.system(size: 22, weight: .semibold)
-        static let h3 = Font.system(size: 20, weight: .medium)
+        static let display = Font.system(size: 34, weight: .black, design: .rounded)
+        static let h1 = Font.system(size: 28, weight: .bold)
+        static let h2 = Font.system(size: 22, weight: .bold)
+        static let h3 = Font.system(size: 20, weight: .semibold)
         static let body = Font.system(size: 17, weight: .regular)
+        static let bodyMedium = Font.system(size: 17, weight: .medium)
         static let bodySmall = Font.system(size: 15, weight: .regular)
-        static let caption = Font.system(size: 13, weight: .regular)
-        static let plate = Font.system(size: 24, weight: .medium, design: .monospaced)
+        static let caption = Font.system(size: 13, weight: .medium)
+        static let captionSmall = Font.system(size: 11, weight: .semibold)
+        static let plate = Font.system(size: 28, weight: .bold, design: .monospaced)
     }
 
     // MARK: - Spacing (8pt grid)
@@ -62,18 +64,26 @@ enum Theme {
         static let full: CGFloat = 9999
     }
 
-    // MARK: - Shadows
+    // MARK: - Shadows (teintees slate pour la profondeur)
 
     enum Shadows {
         static func card() -> some View {
             Color.clear
-                .shadow(color: Color(red: 45/255, green: 27/255, blue: 78/255).opacity(0.08), radius: 4, x: 0, y: 2)
+                .shadow(color: Color(red: 15/255, green: 23/255, blue: 42/255).opacity(0.06), radius: 8, x: 0, y: 4)
         }
 
         static func modal() -> some View {
             Color.clear
-                .shadow(color: Color(red: 45/255, green: 27/255, blue: 78/255).opacity(0.12), radius: 8, x: 0, y: 4)
+                .shadow(color: Color(red: 15/255, green: 23/255, blue: 42/255).opacity(0.15), radius: 16, x: 0, y: 8)
         }
+    }
+
+    // MARK: - Animation
+
+    enum Animation {
+        static let snappy = SwiftUI.Animation.spring(response: 0.3, dampingFraction: 0.8)
+        static let quick = SwiftUI.Animation.easeOut(duration: 0.15)
+        static let smooth = SwiftUI.Animation.easeInOut(duration: 0.25)
     }
 }
 
@@ -81,10 +91,18 @@ enum Theme {
 
 extension View {
     func cardShadow() -> some View {
-        self.shadow(color: Color(red: 45/255, green: 27/255, blue: 78/255).opacity(0.08), radius: 4, x: 0, y: 2)
+        self
+            .shadow(color: Color(red: 15/255, green: 23/255, blue: 42/255).opacity(0.04), radius: 2, x: 0, y: 1)
+            .shadow(color: Color(red: 15/255, green: 23/255, blue: 42/255).opacity(0.06), radius: 8, x: 0, y: 4)
     }
 
     func modalShadow() -> some View {
-        self.shadow(color: Color(red: 45/255, green: 27/255, blue: 78/255).opacity(0.12), radius: 8, x: 0, y: 4)
+        self
+            .shadow(color: Color(red: 15/255, green: 23/255, blue: 42/255).opacity(0.08), radius: 4, x: 0, y: 2)
+            .shadow(color: Color(red: 15/255, green: 23/255, blue: 42/255).opacity(0.15), radius: 16, x: 0, y: 8)
+    }
+
+    func accentGlow() -> some View {
+        self.shadow(color: Color("AccentInteractive").opacity(0.3), radius: 12, x: 0, y: 4)
     }
 }

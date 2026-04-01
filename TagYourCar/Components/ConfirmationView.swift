@@ -62,12 +62,13 @@ struct ConfirmationView: View {
                 .opacity(showCheck ? 1.0 : 0.0)
 
             Text("C'est envoye !")
-                .font(Theme.Typography.h1)
+                .font(Theme.Typography.display)
                 .foregroundStyle(.white)
+                .tracking(-0.5)
 
             Text("Le proprietaire sera notifie.")
-                .font(Theme.Typography.body)
-                .foregroundStyle(.white.opacity(0.9))
+                .font(Theme.Typography.bodyMedium)
+                .foregroundStyle(.white.opacity(0.85))
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Signalement envoye avec succes. Le proprietaire sera notifie.")
@@ -101,15 +102,16 @@ struct ConfirmationView: View {
                 HStack(spacing: Theme.Spacing.sm) {
                     Image(systemName: "doc.text")
                     Text("Carte pare-brise")
+                        .font(Theme.Typography.bodyMedium)
                 }
-                .font(Theme.Typography.body)
                 .frame(maxWidth: .infinity)
-                .padding(Theme.Spacing.md)
+                .frame(height: 52)
                 .background(Theme.Colors.accentInteractive)
                 .foregroundStyle(Theme.Colors.textOnAccent)
-                .cornerRadius(Theme.Radius.md)
+                .cornerRadius(Theme.Radius.lg)
             }
             .padding(.horizontal, Theme.Spacing.xl)
+            .accentGlow()
             .accessibilityLabel("Partager une carte pare-brise")
             .accessibilityHint("Ouvre les options de partage pour une fiche a glisser sur le pare-brise")
 
@@ -131,7 +133,7 @@ struct ConfirmationView: View {
 
     private var backgroundColor: Color {
         switch variant {
-        case .success: return Theme.Colors.success
+        case .success: return Theme.Colors.accentInteractive
         case .notRegistered: return Theme.Colors.bgPrimary
         }
     }
