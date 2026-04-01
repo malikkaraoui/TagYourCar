@@ -64,30 +64,41 @@ struct PlateListView: View {
     private var emptyState: some View {
         VStack(spacing: Theme.Spacing.lg) {
             Image(systemName: "car.fill")
-                .font(.system(size: 64))
-                .foregroundStyle(Theme.Colors.accentMuted)
+                .font(.system(size: 56, weight: .medium))
+                .foregroundStyle(Theme.Colors.accentInteractive)
+                .frame(width: 96, height: 96)
+                .background(Theme.Colors.accentInteractive.opacity(0.1))
+                .clipShape(Circle())
 
-            Text("Aucune plaque enregistree")
-                .font(Theme.Typography.h2)
-                .foregroundStyle(Theme.Colors.textPrimary)
+            VStack(spacing: Theme.Spacing.sm) {
+                Text("Aucune plaque enregistree")
+                    .font(Theme.Typography.h2)
+                    .foregroundStyle(Theme.Colors.textPrimary)
 
-            Text("Ajoutez votre premiere plaque pour recevoir des notifications quand quelqu'un signale un probleme sur votre vehicule.")
-                .font(Theme.Typography.body)
-                .foregroundStyle(Theme.Colors.textSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, Theme.Spacing.xl)
+                Text("Ajoutez votre premiere plaque pour recevoir des notifications quand quelqu'un signale un probleme sur votre vehicule.")
+                    .font(Theme.Typography.body)
+                    .foregroundStyle(Theme.Colors.textSecondary)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.horizontal, Theme.Spacing.xl)
 
             Button {
                 viewModel.showAddPlate = true
             } label: {
-                Text("Ajouter votre premiere plaque")
-                    .frame(maxWidth: .infinity)
-                    .padding(Theme.Spacing.md)
-                    .background(Theme.Colors.accentInteractive)
-                    .foregroundStyle(Theme.Colors.textOnAccent)
-                    .cornerRadius(Theme.Radius.md)
+                HStack(spacing: Theme.Spacing.sm) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 14, weight: .bold))
+                    Text("Ajouter une plaque")
+                        .font(Theme.Typography.bodyMedium)
+                }
+                .frame(maxWidth: .infinity)
+                .frame(height: 52)
+                .background(Theme.Colors.accentInteractive)
+                .foregroundStyle(Theme.Colors.textOnAccent)
+                .cornerRadius(Theme.Radius.lg)
             }
             .padding(.horizontal, Theme.Spacing.xl)
+            .accentGlow()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Theme.Colors.bgPrimary)

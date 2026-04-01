@@ -13,13 +13,16 @@ struct PlateTextField: View {
             .autocorrectionDisabled()
             .textInputAutocapitalization(.characters)
             .keyboardType(.asciiCapable)
-            .padding(Theme.Spacing.md)
+            .tracking(2)
+            .padding(.vertical, Theme.Spacing.lg)
+            .padding(.horizontal, Theme.Spacing.xl)
             .background(Theme.Colors.bgCard)
-            .cornerRadius(Theme.Radius.md)
+            .cornerRadius(Theme.Radius.lg)
             .overlay(
-                RoundedRectangle(cornerRadius: Theme.Radius.md)
+                RoundedRectangle(cornerRadius: Theme.Radius.lg)
                     .stroke(borderColor(for: formatted), lineWidth: 2)
             )
+            .cardShadow()
             .onChange(of: text) { newValue in
                 let formatted = PlateValidator.format(newValue)
                 if formatted != newValue {
