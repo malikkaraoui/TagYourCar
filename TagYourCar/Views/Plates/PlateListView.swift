@@ -118,6 +118,18 @@ struct PlateListView: View {
                             } label: {
                                 Label("Supprimer", systemImage: "trash")
                             }
+                            .tint(Theme.Colors.error)
+                        }
+                        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                            Button {
+                                viewModel.toggleFavorite(plate.id)
+                            } label: {
+                                Label(
+                                    plate.isFavorite ? "Retirer" : "Favoris",
+                                    systemImage: plate.isFavorite ? "star.slash.fill" : "star.fill"
+                                )
+                            }
+                            .tint(Theme.Colors.accentInteractive)
                         }
                 }
             } footer: {

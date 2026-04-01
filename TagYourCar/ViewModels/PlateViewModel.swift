@@ -108,6 +108,20 @@ final class PlateViewModel: ObservableObject {
         }
     }
 
+    func toggleFavorite(_ plateId: String) {
+        for i in plates.indices {
+            if plates[i].id == plateId {
+                plates[i].isFavorite.toggle()
+            } else {
+                // Une seule plaque favorite à la fois
+                plates[i].isFavorite = false
+            }
+        }
+        haptic.prepare()
+        haptic.notificationOccurred(.success)
+        logger.info("Favori mis à jour : \(plateId)")
+    }
+
     func resetInput() {
         plateInput = ""
         errorMessage = nil

@@ -5,6 +5,7 @@ struct Plate: Identifiable, Equatable {
     let ownerUid: String
     let addedAt: Date
     let verified: Bool
+    var isFavorite: Bool = false
 
     /// Masque la plaque pour l'affichage : AB-1xx-CD
     /// Le hash ne contient pas la plaque originale, donc on affiche juste un identifiant partiel du hash
