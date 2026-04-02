@@ -32,9 +32,30 @@ final class AuthService: ObservableObject {
     }
 
     init() {
-        // Ne pas appeler activateIfNeeded() ici — Firebase n'est pas encore
-        // configuré (AppDelegate.didFinishLaunching n'a pas encore été appelé).
-        // L'activation est déclenchée par .task dans TagYourCarApp.
+        // Restaurer le profil depuis le cache local pour un affichage instantané
+        restoreCachedUser()
+    }
+
+    // MARK: - Cache local (UserDefaults)
+
+    private static let cachedUserKey = "com.tagyourcar.cachedUser"
+
+    private func cacheUser(_ user: AppUser) {
+        if let data = try? JSONEncoder().encode(user) {
+            UserDefaults.standard.set(data, forKey: Self.cachedUserKey)
+        }
+    }
+
+    private func restoreCachedUser() {
+        guard let data = UserDefaults.standard.data(forKey: Self.cachedUserKey),
+              let user = try? JSONDecoder().decode(AppUser.self, from: data) else { return }
+        currentUser = user
+        isAuthenticated = true
+        logger.info("Profil restauré depuis le cache local : \(user.uid)")
+    }
+
+    private func clearCachedUser() {
+        UserDefaults.standard.removeObject(forKey: Self.cachedUserKey)
     }
 
     func activateIfNeeded() {
@@ -74,8 +95,9 @@ final class AuthService: ObservableObject {
                 } else {
                     self.isAuthenticated = false
                     self.currentUser = nil
+                    self.clearCachedUser()
                 }
-                // Debloquer l'UI immédiatement — le fetch Firestore est en arrière-plan
+                // Débloquer l'UI immédiatement
                 if !self.isReady {
                     self.isReady = true
                 }
@@ -282,11 +304,12 @@ final class AuthService: ObservableObject {
             authListenerStarted = false
         }
 
-        // Invalider la session locale immediatement
+        // Invalider la session locale immédiatement
         try? auth.signOut()
+        clearCachedUser()
         currentUser = nil
         isAuthenticated = false
-        logger.info("Compte supprime et deconnecte")
+        logger.info("Compte supprimé et déconnecté")
     }
 
     // MARK: - Sign Out
@@ -299,6 +322,7 @@ final class AuthService: ObservableObject {
         }
 
         GIDSignIn.sharedInstance.signOut()
+        clearCachedUser()
         currentUser = nil
         isAuthenticated = false
         logger.info("User signed out")
@@ -315,7 +339,9 @@ final class AuthService: ObservableObject {
         do {
             let document = try await db.collection("users").document(firebaseUser.uid).getDocument()
             if document.exists {
-                self.currentUser = try document.data(as: AppUser.self)
+                let user = try document.data(as: AppUser.self)
+                self.currentUser = user
+                cacheUser(user)
             } else {
                 let appUser = AppUser(
                     uid: firebaseUser.uid,
@@ -325,6 +351,7 @@ final class AuthService: ObservableObject {
                 )
                 try await db.collection("users").document(firebaseUser.uid).setData(from: appUser)
                 self.currentUser = appUser
+                cacheUser(appUser)
                 logger.info("Created Firestore user for social sign-in: \(firebaseUser.uid)")
             }
         } catch {
