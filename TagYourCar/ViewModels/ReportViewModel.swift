@@ -12,6 +12,11 @@ final class ReportViewModel: ObservableObject {
     @Published var reportResult: ReportResult?
     @Published var showConfirmation = false
     @Published var isSubmitting = false
+    @Published var navigationDirection: NavigationDirection = .forward
+
+    enum NavigationDirection {
+        case forward, backward
+    }
 
     private let reportService: any ReportServiceProtocol
     private let logger = Logger(subsystem: "com.tagyourcar", category: "ReportViewModel")
@@ -37,6 +42,7 @@ final class ReportViewModel: ObservableObject {
         selectedZone = zone
         selectedProblem = nil
         selectedColor = nil
+        navigationDirection = .forward
         currentStep = .problem
         logger.info("Zone sélectionnée : \(zone.rawValue)")
     }
@@ -44,6 +50,7 @@ final class ReportViewModel: ObservableObject {
     func selectProblem(_ problem: ProblemType) {
         selectedProblem = problem
         selectedColor = nil
+        navigationDirection = .forward
         currentStep = .color
         logger.info("Problème sélectionné : \(problem.rawValue)")
     }
@@ -52,6 +59,7 @@ final class ReportViewModel: ObservableObject {
         selectedZone = nil
         selectedProblem = nil
         selectedColor = nil
+        navigationDirection = .backward
         currentStep = .zone
         logger.info("Retour à la sélection de zone")
     }
@@ -59,6 +67,7 @@ final class ReportViewModel: ObservableObject {
     func goBackToProblem() {
         selectedProblem = nil
         selectedColor = nil
+        navigationDirection = .backward
         currentStep = .problem
         logger.info("Retour à la sélection de problème")
     }
@@ -66,6 +75,7 @@ final class ReportViewModel: ObservableObject {
     func selectColor(_ color: VehicleColor) {
         selectedColor = color
         plateText = ""
+        navigationDirection = .forward
         currentStep = .plate
         logger.info("Couleur selectionnee : \(color.rawValue)")
     }
@@ -73,6 +83,7 @@ final class ReportViewModel: ObservableObject {
     func goBackToColor() {
         selectedColor = nil
         plateText = ""
+        navigationDirection = .backward
         currentStep = .color
         logger.info("Retour à la sélection de couleur")
     }
@@ -116,6 +127,7 @@ final class ReportViewModel: ObservableObject {
         reportResult = nil
         showConfirmation = false
         isSubmitting = false
+        navigationDirection = .forward
         logger.info("Signalement réinitialisé")
     }
 
@@ -145,7 +157,7 @@ final class ReportViewModel: ObservableObject {
         switch currentStep {
         case .zone: return "Où est le problème ?"
         case .problem: return "Quel problème ?"
-        case .color: return "Couleur du véhicule"
+        case .color: return "Quelle est la couleur vue du véhicule ?"
         case .plate: return "Plaque d'immatriculation"
         }
     }

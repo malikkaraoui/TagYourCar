@@ -175,7 +175,7 @@ final class ReportViewModelTests: XCTestCase {
     func testStepTitleForColor() {
         viewModel.selectZone(.front)
         viewModel.selectProblem(.headlightsOn)
-        XCTAssertEqual(viewModel.stepTitle, "Couleur du véhicule")
+        XCTAssertEqual(viewModel.stepTitle, "Quelle est la couleur vue du véhicule ?")
     }
 
     func testStepTitleForPlate() {
