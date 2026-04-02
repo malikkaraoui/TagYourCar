@@ -68,12 +68,16 @@ export const hashPlate = onCall({ secrets: ["PLATE_HASH_SALT"] }, async (request
     }
   }
 
+  // Masquage partiel lisible : AB-•••-CD (RGPD — chiffres masqués)
+  const displayPlate = plate.substring(0, 2) + "-•••-" + plate.substring(7);
+
   // Store plate
   await db.collection("plates").doc(plateHash).set({
     ownerUid: uid,
     addedAt: new Date(),
     verified: false,
     isFavorite: false,
+    displayPlate: displayPlate,
   });
 
   return { success: true, message: "Plaque enregistree avec succes." };

@@ -76,7 +76,7 @@ final class PlateViewModelTests: XCTestCase {
     func testCannotAddPlateWhenAtLimit() {
         viewModel.plateInput = "AB-123-CD"
         viewModel.plates = (0..<5).map { i in
-            Plate(id: "hash\(i)", ownerUid: "uid", addedAt: Date(), verified: false)
+            Plate(id: "hash\(i)", ownerUid: "uid", addedAt: Date(), verified: false, displayPlate: "AB-•••-C\(i)")
         }
         XCTAssertFalse(viewModel.canAddPlate)
     }
@@ -84,7 +84,7 @@ final class PlateViewModelTests: XCTestCase {
     func testCanAddPlateWith4Existing() {
         viewModel.plateInput = "AB-123-CD"
         viewModel.plates = (0..<4).map { i in
-            Plate(id: "hash\(i)", ownerUid: "uid", addedAt: Date(), verified: false)
+            Plate(id: "hash\(i)", ownerUid: "uid", addedAt: Date(), verified: false, displayPlate: "AB-•••-C\(i)")
         }
         XCTAssertTrue(viewModel.canAddPlate)
     }
@@ -100,14 +100,14 @@ final class PlateViewModelTests: XCTestCase {
 
     func testHasReachedLimitTrueAt5() {
         viewModel.plates = (0..<5).map { i in
-            Plate(id: "hash\(i)", ownerUid: "uid", addedAt: Date(), verified: false)
+            Plate(id: "hash\(i)", ownerUid: "uid", addedAt: Date(), verified: false, displayPlate: "AB-•••-C\(i)")
         }
         XCTAssertTrue(viewModel.hasReachedLimit)
     }
 
     func testHasReachedLimitFalseAt4() {
         viewModel.plates = (0..<4).map { i in
-            Plate(id: "hash\(i)", ownerUid: "uid", addedAt: Date(), verified: false)
+            Plate(id: "hash\(i)", ownerUid: "uid", addedAt: Date(), verified: false, displayPlate: "AB-•••-C\(i)")
         }
         XCTAssertFalse(viewModel.hasReachedLimit)
     }
@@ -163,7 +163,7 @@ final class PlateViewModelTests: XCTestCase {
     func testCanAddPlateAfterDeletionBelowLimit() {
         // 5 plaques = limite atteinte
         viewModel.plates = (0..<5).map { i in
-            Plate(id: "hash\(i)", ownerUid: "uid", addedAt: Date(), verified: false)
+            Plate(id: "hash\(i)", ownerUid: "uid", addedAt: Date(), verified: false, displayPlate: "AB-•••-C\(i)")
         }
         XCTAssertTrue(viewModel.hasReachedLimit)
         XCTAssertFalse(viewModel.canAddPlate)
@@ -177,7 +177,7 @@ final class PlateViewModelTests: XCTestCase {
 
     func testEmptyStateAfterDeletingAllPlates() {
         viewModel.plates = [
-            Plate(id: "hash1", ownerUid: "uid", addedAt: Date(), verified: false)
+            Plate(id: "hash1", ownerUid: "uid", addedAt: Date(), verified: false, displayPlate: "AB-•••-C1")
         ]
         XCTAssertFalse(viewModel.plates.isEmpty)
 
@@ -187,7 +187,7 @@ final class PlateViewModelTests: XCTestCase {
 
     func testPlateCountDecreasesAfterDeletion() {
         viewModel.plates = (0..<3).map { i in
-            Plate(id: "hash\(i)", ownerUid: "uid", addedAt: Date(), verified: false)
+            Plate(id: "hash\(i)", ownerUid: "uid", addedAt: Date(), verified: false, displayPlate: "AB-•••-C\(i)")
         }
         XCTAssertEqual(viewModel.plates.count, 3)
 

@@ -22,7 +22,7 @@ struct PlateCard: View {
                 }
             }
 
-            Text(plate.maskedDisplay)
+            Text(plate.displayPlate)
                 .font(Theme.Typography.plate)
                 .foregroundStyle(Theme.Colors.textPrimary)
                 .tracking(1)
@@ -50,6 +50,6 @@ struct PlateCard: View {
         .background(Theme.Colors.bgCard)
         .cornerRadius(Theme.Radius.lg)
         .cardShadow()
-        .accessibilityLabel("Plaque enregistrée, identifiant \(plate.maskedDisplay), protégée")
+        .accessibilityLabel("Plaque enregistrée, identifiant \(plate.displayPlate), protégée")
     }
 }
