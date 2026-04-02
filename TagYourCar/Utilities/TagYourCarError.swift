@@ -28,7 +28,7 @@ enum TagYourCarError: LocalizedError {
         case .firebaseNotConfigured:
             return "L'application n'est pas correctement configurée. Vérifiez votre connexion."
         case .networkError(let error):
-            return "Erreur reseau : \(error.localizedDescription)"
+            return "Erreur réseau. Vérifiez votre connexion."
         case .unknownError:
             return "Une erreur inattendue est survenue."
         }

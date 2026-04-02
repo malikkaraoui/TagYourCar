@@ -35,11 +35,15 @@ final class ReportService: ObservableObject {
             result = try await functions.httpsCallable("submitReport").call(data)
         } catch {
             let nsError = error as NSError
-            // resource-exhausted = anti-abus (rate limit ou blocage)
-            if nsError.domain == "com.firebase.functions" || nsError.code == 8 {
+            logger.warning("Erreur signalement — domain: \(nsError.domain), code: \(nsError.code), message: \(nsError.localizedDescription)")
+            // resource-exhausted (code 8) = anti-abus (rate limit ou blocage)
+            if nsError.code == 8 {
+                // Le message vient de la Cloud Function (déjà en FR)
                 let message = nsError.localizedDescription
-                logger.warning("Signalement bloque par anti-abus : \(message)")
-                throw TagYourCarError.reportBlocked(message)
+                if message.contains("restreint") || message.contains("Limite") {
+                    throw TagYourCarError.reportBlocked(message)
+                }
+                throw TagYourCarError.reportBlocked("Trop de signalements. Réessayez plus tard.")
             }
             throw TagYourCarError.reportFailed
         }
