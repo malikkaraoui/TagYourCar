@@ -1,29 +1,45 @@
 import SwiftUI
 
+struct BootstrapRootView: View {
+    @ObservedObject var notificationHandler: NotificationHandler
+    @State private var authService: AuthService?
+    @State private var didStartBootstrap = false
+
+    var body: some View {
+        Group {
+            if let authService {
+                ContentView(notificationHandler: notificationHandler)
+                    .environmentObject(authService)
+            } else {
+                LaunchBridgeView()
+                    .task {
+                        await bootstrapIfNeeded()
+                    }
+            }
+        }
+    }
+
+    @MainActor
+    private func bootstrapIfNeeded() async {
+        guard !didStartBootstrap else { return }
+        didStartBootstrap = true
+
+        try? await Task.sleep(nanoseconds: 16_000_000)
+
+        FirebaseBootstrap.configureIfNeeded()
+
+        let service = AuthService()
+        service.activateIfNeeded()
+        authService = service
+    }
+}
+
 struct ContentView: View {
     @EnvironmentObject var authService: AuthService
     @StateObject private var networkMonitor = NetworkMonitor()
     @ObservedObject var notificationHandler: NotificationHandler
-    @State private var showLaunchBridge = true
 
     var body: some View {
-        ZStack {
-            if showLaunchBridge {
-                LaunchBridgeView()
-                    .transition(.identity)
-            } else {
-                mainContent
-                    .transition(.opacity)
-            }
-        }
-        .animation(.easeOut(duration: 0.18), value: showLaunchBridge)
-        .task {
-            authService.activateIfNeeded()
-            dismissLaunchBridgeIfNeeded()
-        }
-    }
-
-    private var mainContent: some View {
         ZStack {
             Theme.Colors.bgPrimary
                 .ignoresSafeArea()
@@ -68,14 +84,6 @@ struct ContentView: View {
         }
         .animation(.easeInOut(duration: 0.3), value: networkMonitor.isConnected)
         .animation(.easeInOut(duration: 0.3), value: notificationHandler.showReportDetail)
-    }
-
-    private func dismissLaunchBridgeIfNeeded() {
-        guard showLaunchBridge else { return }
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-            showLaunchBridge = false
-        }
     }
 }
 

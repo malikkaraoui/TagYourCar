@@ -33,6 +33,7 @@ targets:
         CFBundleURLTypes:
           - CFBundleURLSchemes:
               - com.googleusercontent.apps.71145584282-aqt95t49louvmnurlq430ce8ajqop4q5
+        FirebaseAppDelegateProxyEnabled: false
         UILaunchStoryboardName: LaunchScreen
     settings:
       base:

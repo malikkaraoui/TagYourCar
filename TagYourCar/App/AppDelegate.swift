@@ -28,6 +28,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
     ) {
+        FirebaseBootstrap.configureIfNeeded()
         Messaging.messaging().apnsToken = deviceToken
     }
 
