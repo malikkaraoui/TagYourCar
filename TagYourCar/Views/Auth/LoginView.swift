@@ -40,30 +40,9 @@ struct LoginView: View {
                     .padding(.bottom, Theme.Spacing.xs)
 
                     // Social Sign-In Buttons
+                    // Note : Sign in with Apple nécessite un compte Apple Developer Program (99$/an)
+                    // Le bouton sera réactivé une fois le compte souscrit
                     VStack(spacing: Theme.Spacing.sm) {
-                        SignInWithAppleButton(.signIn) { request in
-                            let (_, hashedNonce) = authService.prepareAppleSignIn()
-                            request.requestedScopes = [.fullName, .email]
-                            request.nonce = hashedNonce
-                        } onCompletion: { result in
-                            Task {
-                                switch result {
-                                case .success(let authorization):
-                                    do {
-                                        try await authService.handleAppleSignIn(authorization: authorization)
-                                    } catch {
-                                        print("Apple Sign-In error: \(error)")
-                                        viewModel.errorMessage = "Connexion Apple échouée. \(error.localizedDescription)"
-                                    }
-                                case .failure:
-                                    break // Annulation silencieuse
-                                }
-                            }
-                        }
-                        .signInWithAppleButtonStyle(.black)
-                        .frame(height: 50)
-                        .cornerRadius(Theme.Radius.md)
-                        .accessibilityLabel("Se connecter avec Apple")
 
                         Button {
                             Task {
