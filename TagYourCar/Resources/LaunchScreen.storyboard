@@ -19,12 +19,12 @@
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="TagYourCar" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1fE-61-bhe">
                                 <rect key="frame" x="109" y="386" width="172" height="39"/>
                                 <fontDescription key="fontDescription" type="boldSystem" pointSize="32"/>
-                                <color key="textColor" red="0.2705882353" green="0.1529411765" blue="0.4705882353" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="textColor" red="0.058823529" green="0.090196078" blue="0.164705882" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
-                        <color key="backgroundColor" red="0.968627451" green="0.960784314" blue="0.980392157" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="backgroundColor" red="0.97254902" green="0.98039216" blue="0.98823529" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="1fE-61-bhe" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="Q0j-6U-sGh"/>
                             <constraint firstItem="1fE-61-bhe" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" constant="-16" id="r0R-um-aSC"/>
