@@ -36,8 +36,10 @@ describe("onReportCreated — labels de probleme", () => {
 });
 
 describe("onReportCreated — construction notification FCM", () => {
-  function buildNotificationBody(problemText: string, partialPlate: string): string {
-    return `Quelqu'un vous signale que ${problemText} sur ${partialPlate}.`;
+  function buildNotificationBody(problemText: string, partialPlate: string, isSelfReport = false): string {
+    return isSelfReport
+      ? `Tag de test : ${problemText} sur ${partialPlate}.`
+      : `Quelqu'un vous signale que ${problemText} sur ${partialPlate}.`;
   }
 
   test("notification avec phares allumes", () => {
@@ -51,10 +53,15 @@ describe("onReportCreated — construction notification FCM", () => {
     const body = buildNotificationBody("votre coffre est ouvert", partialPlate);
     expect(body).toContain("votre vehicule");
   });
+
+  test("auto-signalement = notification de test autorisee", () => {
+    const body = buildNotificationBody("vos phares sont allumes", "AB-xxx-CD", true);
+    expect(body).toBe("Tag de test : vos phares sont allumes sur AB-xxx-CD.");
+  });
 });
 
 describe("onReportCreated — auto-signalement", () => {
-  test("proprietaire == signaleur = pas de notification", () => {
+  test("proprietaire == signaleur = notification autorisee pour test", () => {
     const ownerUid: string = "user-123";
     const reporterUid: string = "user-123";
     expect(ownerUid === reporterUid).toBe(true);

@@ -161,11 +161,20 @@ final class PlateViewModel: ObservableObject {
     // MARK: - Error Mapping
 
     private func mapError(_ error: Error) -> String {
+        if let tagError = error as? TagYourCarError,
+           let description = tagError.errorDescription {
+            return description
+        }
+
         let nsError = error as NSError
         let message = nsError.localizedDescription.lowercased()
 
         if message.contains("limite") || message.contains("resource-exhausted") {
             return "Limite de 5 plaques atteinte."
+        } else if message.contains("votre compte") {
+            return "Cette plaque vous appartient déjà et elle est déjà enregistrée sur votre compte."
+        } else if message.contains("autre utilisateur") {
+            return "Cette plaque est déjà enregistrée par un autre utilisateur."
         } else if message.contains("déjà enregistrée") || message.contains("already-exists") {
             return "Cette plaque est déjà enregistrée."
         } else if message.contains("format") || message.contains("invalid-argument") {

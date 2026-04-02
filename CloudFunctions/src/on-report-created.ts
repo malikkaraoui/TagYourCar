@@ -32,11 +32,7 @@ export const onReportCreated = onDocumentCreated(
       return;
     }
 
-    // Ne pas notifier le proprietaire s'il se signale lui-meme
-    if (ownerUid === report.reporterUid) {
-      logger.info("Le signaleur est le proprietaire — pas de notification");
-      return;
-    }
+    const isSelfReport = ownerUid === report.reporterUid;
 
     // Trouver le fcmToken du proprietaire
     const userDoc = await db.collection("users").doc(ownerUid).get();
@@ -78,11 +74,15 @@ export const onReportCreated = onDocumentCreated(
 
     // Envoyer la notification FCM
     try {
+      const body = isSelfReport
+        ? `Tag de test : ${problemText} sur ${partialPlate}.`
+        : `Quelqu'un vous signale que ${problemText} sur ${partialPlate}.`;
+
       await getMessaging().send({
         token: fcmToken,
         notification: {
           title: "TagYourCar",
-          body: `Quelqu'un vous signale que ${problemText} sur ${partialPlate}.`,
+          body,
         },
         data: {
           reportId: event.params.reportId,
@@ -102,7 +102,7 @@ export const onReportCreated = onDocumentCreated(
       });
 
       await snapshot.ref.update({ status: "delivered" });
-      logger.info(`Notification envoyee au proprietaire de ${partialPlate} (badge: ${badgeCount})`);
+      logger.info(`Notification envoyee au proprietaire de ${partialPlate} (badge: ${badgeCount}, selfReport: ${isSelfReport})`);
     } catch (error) {
       logger.error("Erreur envoi notification FCM:", error);
       await snapshot.ref.update({ status: "failed" });

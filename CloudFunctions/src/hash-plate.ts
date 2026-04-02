@@ -51,12 +51,10 @@ export const hashPlate = onCall({ secrets: ["PLATE_HASH_SALT"] }, async (request
         { merge: true }
       );
 
-      return {
-        success: true,
-        plateHash,
-        alreadyOwned: true,
-        message: "Plaque deja synchronisee sur votre compte.",
-      };
+      throw new HttpsError(
+        "already-exists",
+        "Cette plaque est deja enregistree sur votre compte."
+      );
     } else {
       throw new HttpsError(
         "already-exists",
@@ -90,7 +88,6 @@ export const hashPlate = onCall({ secrets: ["PLATE_HASH_SALT"] }, async (request
   return {
     success: true,
     plateHash,
-    alreadyOwned: false,
     message: "Plaque enregistree avec succes.",
   };
 });

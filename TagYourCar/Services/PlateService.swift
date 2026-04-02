@@ -26,7 +26,23 @@ final class PlateService: ObservableObject {
             throw TagYourCarError.firebaseNotConfigured
         }
 
-        let result = try await functions.httpsCallable("hashPlate").call(["plate": plateText])
+        let result: HTTPSCallableResult
+        do {
+            result = try await functions.httpsCallable("hashPlate").call(["plate": plateText])
+        } catch {
+            let message = (error as NSError).localizedDescription.lowercased()
+
+            if message.contains("votre compte") {
+                await fetchPlates(for: uid)
+                throw TagYourCarError.plateAlreadyRegisteredOnAccount
+            }
+
+            if message.contains("autre utilisateur") || message.contains("already-exists") {
+                throw TagYourCarError.plateAlreadyRegistered
+            }
+
+            throw error
+        }
 
         guard let data = result.data as? [String: Any],
               let success = data["success"] as? Bool, success else {

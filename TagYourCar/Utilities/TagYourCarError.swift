@@ -3,6 +3,7 @@ import Foundation
 enum TagYourCarError: LocalizedError {
     case plateInvalidFormat
     case plateLimitReached
+    case plateAlreadyRegisteredOnAccount
     case plateAlreadyRegistered
     case reportFailed
     case reportBlocked(String)
@@ -17,6 +18,8 @@ enum TagYourCarError: LocalizedError {
             return "Le format de la plaque est invalide. Utilisez le format AA-123-AA."
         case .plateLimitReached:
             return "Vous avez atteint la limite de 5 plaques enregistrées."
+        case .plateAlreadyRegisteredOnAccount:
+            return "Cette plaque vous appartient déjà et elle est déjà enregistrée sur votre compte."
         case .plateAlreadyRegistered:
             return "Cette plaque est déjà enregistrée par un autre utilisateur."
         case .reportFailed:

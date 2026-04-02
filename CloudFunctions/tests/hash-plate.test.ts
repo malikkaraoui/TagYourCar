@@ -89,7 +89,7 @@ describe("existing owned plate reconciliation", () => {
     }
 
     return {
-      action: "merge",
+      action: "merge-then-throw-owned-duplicate",
       payload: {
         displayPlate: params.inputPlate,
         isFavorite: params.existingIsFavorite === true,
@@ -106,7 +106,7 @@ describe("existing owned plate reconciliation", () => {
     });
 
     expect(result).toEqual({
-      action: "merge",
+      action: "merge-then-throw-owned-duplicate",
       payload: {
         displayPlate: "CK-442-NS",
         isFavorite: true,
