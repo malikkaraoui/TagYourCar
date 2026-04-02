@@ -141,6 +141,11 @@ struct PlateListView: View {
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .background(Theme.Colors.bgPrimary)
+        .refreshable {
+            if let uid = authService.currentUser?.uid {
+                await viewModel.loadPlates(for: uid)
+            }
+        }
         .alert("Supprimer cette plaque ?", isPresented: $showDeleteConfirmation) {
             Button("Annuler", role: .cancel) {
                 plateToDelete = nil
