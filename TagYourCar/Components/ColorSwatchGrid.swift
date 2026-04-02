@@ -3,64 +3,61 @@ import UIKit
 
 struct ColorSwatchGrid: View {
     @Binding var selectedColor: VehicleColor?
-    private let impactMedium = UIImpactFeedbackGenerator(style: .medium)
 
     private let columns = [
-        GridItem(.flexible(), spacing: Theme.Spacing.md),
         GridItem(.flexible(), spacing: Theme.Spacing.md),
         GridItem(.flexible(), spacing: Theme.Spacing.md),
         GridItem(.flexible(), spacing: Theme.Spacing.md)
     ]
 
     var body: some View {
-        LazyVGrid(columns: columns, spacing: Theme.Spacing.lg) {
+        LazyVGrid(columns: columns, spacing: Theme.Spacing.md) {
             ForEach(VehicleColor.allCases, id: \.rawValue) { color in
-                swatchButton(for: color)
+                colorTile(for: color)
             }
         }
-        .padding(Theme.Spacing.lg)
+        .padding(.horizontal, Theme.Spacing.lg)
     }
 
     @ViewBuilder
-    private func swatchButton(for color: VehicleColor) -> some View {
+    private func colorTile(for color: VehicleColor) -> some View {
         let isSelected = selectedColor == color
 
-        Button {
-            impactMedium.prepare()
-            impactMedium.impactOccurred(intensity: 0.8)
-            selectedColor = color
-        } label: {
-            ZStack {
-                Circle()
-                    .fill(swiftUIColor(for: color))
-                    .frame(width: 52, height: 52)
-                    .overlay(
-                        Circle()
-                            .stroke(
-                                isSelected ? Theme.Colors.accentInteractive : borderColor(for: color),
-                                lineWidth: isSelected ? 3 : 1
-                            )
-                    )
+        SelectionTile(isSelected: isSelected, action: { selectedColor = color }) {
+            VStack(spacing: Theme.Spacing.sm) {
+                ZStack {
+                    RoundedRectangle(cornerRadius: Theme.Radius.sm)
+                        .fill(swiftUIColor(for: color))
+                        .frame(height: 44)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: Theme.Radius.sm)
+                                .stroke(neutralBorder(for: color), lineWidth: 1)
+                        )
 
-                if color == .other {
-                    Image(systemName: "questionmark")
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundStyle(Theme.Colors.textSecondary)
+                    if color == .other {
+                        Image(systemName: "questionmark")
+                            .font(.system(size: 20, weight: .medium))
+                            .foregroundStyle(Theme.Colors.textSecondary)
+                    }
+
+                    if isSelected {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 16, weight: .bold))
+                            .foregroundStyle(checkmarkColor(for: color))
+                    }
                 }
 
-                if isSelected {
-                    Image(systemName: "checkmark")
-                        .font(.system(size: 16, weight: .bold))
-                        .foregroundStyle(checkmarkColor(for: color))
-                }
+                Text(displayLabel(for: color))
+                    .font(Theme.Typography.captionSmall)
+                    .foregroundStyle(isSelected ? Theme.Colors.accentInteractive : Theme.Colors.textSecondary)
+                    .lineLimit(1)
             }
-            .frame(minWidth: 44, minHeight: 44)
-            .scaleEffect(isSelected ? 1.15 : 1.0)
-            .animation(.spring(response: 0.25, dampingFraction: 0.55), value: isSelected)
+            .padding(Theme.Spacing.sm)
         }
-        .accessibilityLabel(accessibilityLabel(for: color))
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityLabel(displayLabel(for: color))
     }
+
+    // MARK: - Couleurs
 
     private func swiftUIColor(for color: VehicleColor) -> Color {
         switch color {
@@ -79,7 +76,7 @@ struct ColorSwatchGrid: View {
         }
     }
 
-    private func borderColor(for color: VehicleColor) -> Color {
+    private func neutralBorder(for color: VehicleColor) -> Color {
         switch color {
         case .white, .beige, .yellow, .silver:
             return Theme.Colors.bgSeparator
@@ -97,7 +94,7 @@ struct ColorSwatchGrid: View {
         }
     }
 
-    private func accessibilityLabel(for color: VehicleColor) -> String {
+    private func displayLabel(for color: VehicleColor) -> String {
         switch color {
         case .white: return "Blanc"
         case .black: return "Noir"
@@ -110,7 +107,7 @@ struct ColorSwatchGrid: View {
         case .yellow: return "Jaune"
         case .orange: return "Orange"
         case .brown: return "Marron"
-        case .other: return "Autre couleur"
+        case .other: return "Autre"
         }
     }
 }
