@@ -77,20 +77,20 @@ struct ProblemTypePicker: View {
 
     private func accessibilityLabel(for problem: ProblemType) -> String {
         switch problem {
-        case .headlightsOn: return "Phares allumes"
+        case .headlightsOn: return "Phares allumés"
         case .hoodOpen: return "Capot ouvert"
         case .chargeFlapOpen: return "Trappe de charge ouverte"
-        case .flatTireFront: return "Pneu a plat avant"
-        case .otherFront: return "Autre probleme zone avant"
+        case .flatTireFront: return "Pneu à plat avant"
+        case .otherFront: return "Autre problème zone avant"
         case .windowOpen: return "Vitre ouverte"
-        case .doorAjar: return "Portiere mal fermee"
+        case .doorAjar: return "Portière mal fermée"
         case .sunroofOpen: return "Toit ouvrant ouvert"
-        case .otherMiddle: return "Autre probleme zone milieu"
-        case .taillightsOn: return "Feux allumes"
-        case .fuelFlapOpen: return "Trappe a essence ouverte"
+        case .otherMiddle: return "Autre problème zone milieu"
+        case .taillightsOn: return "Feux allumés"
+        case .fuelFlapOpen: return "Trappe à essence ouverte"
         case .trunkOpen: return "Coffre ouvert"
-        case .flatTireRear: return "Pneu a plat arriere"
-        case .otherRear: return "Autre probleme zone arriere"
+        case .flatTireRear: return "Pneu à plat arrière"
+        case .otherRear: return "Autre problème zone arrière"
         }
     }
 }

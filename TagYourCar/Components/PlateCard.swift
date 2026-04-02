@@ -33,7 +33,7 @@ struct PlateCard: View {
                 HStack(spacing: 4) {
                     Image(systemName: "checkmark")
                         .font(.system(size: 10, weight: .bold))
-                    Text("Verifie")
+                    Text("Vérifié")
                         .font(Theme.Typography.captionSmall)
                         .textCase(.uppercase)
                         .tracking(0.3)
@@ -50,6 +50,6 @@ struct PlateCard: View {
         .background(Theme.Colors.bgCard)
         .cornerRadius(Theme.Radius.lg)
         .cardShadow()
-        .accessibilityLabel("Plaque enregistree, identifiant \(plate.maskedDisplay), protegee")
+        .accessibilityLabel("Plaque enregistrée, identifiant \(plate.maskedDisplay), protégée")
     }
 }

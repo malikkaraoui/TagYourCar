@@ -6,11 +6,11 @@ struct WindshieldCardShareSheet: View {
     private let cardText = """
     Bonjour,
 
-    J'ai remarque un souci sur votre vehicule \
-    et j'aurais aime vous prevenir instantanement.
+    J'ai remarqué un souci sur votre véhicule \
+    et j'aurais aimé vous prévenir instantanément.
 
     Avec l'app TagYourCar, vous recevez une notification \
-    en temps reel quand quelqu'un signale un probleme \
+    en temps reel quand quelqu'un signale un problème \
     sur votre voiture (phares allumes, vitre ouverte, etc.).
 
     Gratuit et disponible sur l'App Store.

@@ -78,7 +78,7 @@ struct CarZoneSelector: View {
         switch zone {
         case .front: return "Avant"
         case .middle: return "Milieu"
-        case .rear: return "Arriere"
+        case .rear: return "Arrière"
         }
     }
 
@@ -86,7 +86,7 @@ struct CarZoneSelector: View {
         switch zone {
         case .front: return "Zone avant du vehicule"
         case .middle: return "Zone milieu du vehicule"
-        case .rear: return "Zone arriere du vehicule"
+        case .rear: return "Zone arrière du véhicule"
         }
     }
 }
