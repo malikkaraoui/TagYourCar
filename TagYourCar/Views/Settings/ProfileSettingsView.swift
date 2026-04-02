@@ -15,7 +15,7 @@ struct ProfileSettingsView: View {
         List {
             // Profile Section
             Section("Profil") {
-                TextField("Prenom", text: $firstName)
+                TextField("Prénom", text: $firstName)
                     .textContentType(.givenName)
 
                 TextField("Nom", text: $lastName)
@@ -46,10 +46,10 @@ struct ProfileSettingsView: View {
             }
 
             // Settings Section
-            Section("Informations legales") {
+            Section("Informations légales") {
                 Link(destination: URL(string: "https://tagyourcar.com/confidentialite")!) {
                     HStack {
-                        Text("Politique de confidentialite")
+                        Text("Politique de confidentialité")
                             .foregroundStyle(Theme.Colors.textPrimary)
                         Spacer()
                         Image(systemName: "chevron.right")
@@ -59,7 +59,7 @@ struct ProfileSettingsView: View {
 
                 Link(destination: URL(string: "https://tagyourcar.com/cgu")!) {
                     HStack {
-                        Text("Conditions generales d'utilisation")
+                        Text("Conditions générales d'utilisation")
                             .foregroundStyle(Theme.Colors.textPrimary)
                         Spacer()
                         Image(systemName: "chevron.right")
@@ -89,7 +89,7 @@ struct ProfileSettingsView: View {
 
             // Actions Section
             Section {
-                Button("Se deconnecter") {
+                Button("Se déconnecter") {
                     try? authService.signOut()
                 }
                 .foregroundStyle(Theme.Colors.error)
@@ -109,8 +109,8 @@ struct ProfileSettingsView: View {
                     .foregroundStyle(Theme.Colors.error)
                 }
                 .disabled(isDeleting)
-                .accessibilityLabel("Supprimer definitivement votre compte")
-                .accessibilityHint("Cette action est irreversible")
+                .accessibilityLabel("Supprimer définitivement votre compte")
+                .accessibilityHint("Cette action est irréversible")
             } footer: {
                 if let deleteError {
                     Text(deleteError)
@@ -118,7 +118,7 @@ struct ProfileSettingsView: View {
                 }
             }
         }
-        .navigationTitle("Profil & Parametres")
+        .navigationTitle("Profil & Paramètres")
         .onAppear {
             loadCurrentProfile()
         }
@@ -131,7 +131,7 @@ struct ProfileSettingsView: View {
                 Task { await deleteAccount() }
             }
         } message: {
-            Text("Cette action est irreversible. Toutes vos donnees seront supprimees definitivement (plaques, signalements, profil).")
+            Text("Cette action est irréversible. Toutes vos données seront supprimées définitivement (plaques, signalements, profil).")
         }
     }
 
