@@ -42,7 +42,7 @@ struct ReportView: View {
                                 }
                                 .foregroundStyle(Theme.Colors.accentInteractive)
                             }
-                            .accessibilityLabel("Retour a l'etape precedente")
+                            .accessibilityLabel("Retour à l'étape précédente")
                         }
                     }
                 }
@@ -159,7 +159,7 @@ struct ReportView: View {
                 .font(Theme.Typography.h2)
                 .foregroundStyle(Theme.Colors.textPrimary)
 
-            Text("Saisissez la plaque du vehicule")
+            Text("Saisissez la plaque du véhicule")
                 .font(Theme.Typography.body)
                 .foregroundStyle(Theme.Colors.textSecondary)
 

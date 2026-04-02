@@ -25,7 +25,7 @@ struct ReportDetailView: View {
                     detailRow(icon: "car.top.door.front.left.open", label: "Zone", value: zoneLabel)
                     detailRow(icon: "paintpalette", label: "Couleur", value: colorLabel)
                     detailRow(icon: "number", label: "Plaque", value: reportData.partialPlate)
-                    detailRow(icon: "clock", label: "Signale", value: reportData.formattedTime ?? "A l'instant")
+                    detailRow(icon: "clock", label: "Signale", value: reportData.formattedTime ?? "À l'instant")
                 }
                 .padding(Theme.Spacing.lg)
                 .background(Theme.Colors.bgCard)
@@ -41,7 +41,7 @@ struct ReportDetailView: View {
                     .padding(.bottom, Theme.Spacing.lg)
             }
             .background(Theme.Colors.bgPrimary.ignoresSafeArea())
-            .navigationTitle("Signalement recu")
+            .navigationTitle("Signalement reçu")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -84,29 +84,29 @@ struct ReportDetailView: View {
         switch reportData.zone {
         case "front": return "Avant"
         case "middle": return "Milieu"
-        case "rear": return "Arriere"
+        case "rear": return "Arrière"
         default: return reportData.zone
         }
     }
 
     private var problemLabel: String {
         let labels: [String: String] = [
-            "headlights_on": "Phares allumes",
+            "headlights_on": "Phares allumés",
             "hood_open": "Capot ouvert",
             "charge_flap_open": "Trappe de charge ouverte",
-            "flat_tire_front": "Pneu a plat (avant)",
-            "other_front": "Probleme signale (avant)",
+            "flat_tire_front": "Pneu à plat (avant)",
+            "other_front": "Problème signalé (avant)",
             "window_open": "Vitre ouverte",
-            "door_ajar": "Portiere mal fermee",
+            "door_ajar": "Portière mal fermée",
             "sunroof_open": "Toit ouvrant ouvert",
-            "other_middle": "Probleme signale (milieu)",
-            "taillights_on": "Feux allumes",
-            "fuel_flap_open": "Trappe a essence ouverte",
+            "other_middle": "Problème signalé (milieu)",
+            "taillights_on": "Feux allumés",
+            "fuel_flap_open": "Trappe à essence ouverte",
             "trunk_open": "Coffre ouvert",
-            "flat_tire_rear": "Pneu a plat (arriere)",
-            "other_rear": "Probleme signale (arriere)",
+            "flat_tire_rear": "Pneu à plat (arriere)",
+            "other_rear": "Problème signalé (arriere)",
         ]
-        return labels[reportData.problemType] ?? "Probleme signale"
+        return labels[reportData.problemType] ?? "Problème signalé"
     }
 
     private var colorLabel: String {
