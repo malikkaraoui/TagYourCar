@@ -52,7 +52,8 @@ struct LoginView: View {
                                     do {
                                         try await authService.handleAppleSignIn(authorization: authorization)
                                     } catch {
-                                        viewModel.errorMessage = "Connexion Apple échouée."
+                                        print("Apple Sign-In error: \(error)")
+                                        viewModel.errorMessage = "Connexion Apple échouée. \(error.localizedDescription)"
                                     }
                                 case .failure:
                                     break // Annulation silencieuse
