@@ -71,7 +71,7 @@ struct ConfirmationView: View {
                 .foregroundStyle(.white.opacity(0.85))
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Signalement envoye avec succes. Le propriétaire sera notifié.")
+        .accessibilityLabel("Signalement envoyé avec succès. Le propriétaire sera notifié.")
     }
 
     // MARK: - Plaque non enregistree

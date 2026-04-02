@@ -84,8 +84,8 @@ struct CarZoneSelector: View {
 
     private func accessibilityLabel(for zone: VehicleZone) -> String {
         switch zone {
-        case .front: return "Zone avant du vehicule"
-        case .middle: return "Zone milieu du vehicule"
+        case .front: return "Zone avant du véhicule"
+        case .middle: return "Zone milieu du véhicule"
         case .rear: return "Zone arrière du véhicule"
         }
     }
