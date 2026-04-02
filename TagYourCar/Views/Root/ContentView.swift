@@ -115,21 +115,32 @@ private struct AuthenticatedRootView: View {
     }
 }
 
+private enum AppTab: Hashable {
+    case report
+    case plates
+}
+
 struct TabBarView: View {
     @EnvironmentObject var authService: AuthService
     let plateService: PlateService
+    @State private var selectedTab: AppTab = .report
 
     var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             ReportView()
                 .tabItem {
                     Label("Signaler", systemImage: "exclamationmark.triangle")
                 }
+                .tag(AppTab.report)
 
-            PlateListView(plateService: plateService)
+            PlateListView(
+                plateService: plateService,
+                isTabActive: selectedTab == .plates
+            )
                 .tabItem {
                     Label("Mes plaques", systemImage: "car.fill")
                 }
+                .tag(AppTab.plates)
         }
         .tint(Theme.Colors.accentPrimary)
             .toolbarBackground(Theme.Colors.bgPrimary, for: .tabBar)

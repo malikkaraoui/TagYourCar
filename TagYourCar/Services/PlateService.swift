@@ -18,6 +18,11 @@ final class PlateService: ObservableObject {
     }
     private let logger = Logger(subsystem: "com.tagyourcar", category: "PlateService")
 
+    private func fetchFavoritePlateHash(for uid: String, using db: Firestore) async throws -> String? {
+        let userDoc = try await db.collection("users").document(uid).getDocument()
+        return userDoc.data()?["favoritePlateHash"] as? String
+    }
+
     // MARK: - Add Plate
 
     func addPlate(_ plateText: String, for uid: String) async throws {
@@ -45,11 +50,22 @@ final class PlateService: ObservableObject {
             throw TagYourCarError.firebaseNotConfigured
         }
 
+        guard let db else {
+            logger.error("Suppression de plaque impossible sans Firestore")
+            throw TagYourCarError.firebaseNotConfigured
+        }
+
         let result = try await functions.httpsCallable("deletePlate").call(["plateHash": plateText])
 
         guard let data = result.data as? [String: Any],
               let success = data["success"] as? Bool, success else {
             throw TagYourCarError.unknownError
+        }
+
+        if try await fetchFavoritePlateHash(for: uid, using: db) == plateText {
+            try await db.collection("users").document(uid).updateData([
+                "favoritePlateHash": FieldValue.delete()
+            ])
         }
 
         await fetchPlates(for: uid)
@@ -74,6 +90,31 @@ final class PlateService: ObservableObject {
         return verified
     }
 
+    // MARK: - Favorite Plate
+
+    func updateFavoritePlate(_ plateHash: String?, for uid: String) async throws {
+        guard let db else {
+            logger.error("Favori impossible sans Firestore")
+            throw TagYourCarError.firebaseNotConfigured
+        }
+
+        if let plateHash {
+            try await db.collection("users").document(uid).updateData([
+                "favoritePlateHash": plateHash
+            ])
+        } else {
+            try await db.collection("users").document(uid).updateData([
+                "favoritePlateHash": FieldValue.delete()
+            ])
+        }
+
+        for index in plates.indices {
+            plates[index].isFavorite = plates[index].id == plateHash
+        }
+
+        logger.info("Favori persiste pour user \(uid) : \(plateHash ?? "aucun")")
+    }
+
     // MARK: - Fetch User Plates
 
     func fetchPlates(for uid: String) async {
@@ -84,18 +125,20 @@ final class PlateService: ObservableObject {
         }
 
         do {
-            let snapshot = try await db.collection("plates")
+            let selectedPlateHash = try await fetchFavoritePlateHash(for: uid, using: db)
+            let platesSnapshot = try await db.collection("plates")
                 .whereField("ownerUid", isEqualTo: uid)
                 .limit(to: 10) // Sécurité: limite même si business logic = 5
                 .getDocuments()
 
-            self.plates = snapshot.documents.compactMap { doc in
+            self.plates = platesSnapshot.documents.compactMap { doc in
                 let data = doc.data()
                 return Plate(
                     id: doc.documentID,
                     ownerUid: data["ownerUid"] as? String ?? "",
                     addedAt: (data["addedAt"] as? Timestamp)?.dateValue() ?? Date(),
-                    verified: data["verified"] as? Bool ?? false
+                    verified: data["verified"] as? Bool ?? false,
+                    isFavorite: doc.documentID == selectedPlateHash
                 )
             }
             logger.info("Fetched \(self.plates.count) plates for user \(uid)")

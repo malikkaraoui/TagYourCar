@@ -5,8 +5,10 @@ struct PlateListView: View {
     @StateObject private var viewModel: PlateViewModel
     @State private var plateToDelete: Plate?
     @State private var showDeleteConfirmation = false
+    let isTabActive: Bool
 
-    init(plateService: PlateService) {
+    init(plateService: PlateService, isTabActive: Bool) {
+        self.isTabActive = isTabActive
         _viewModel = StateObject(wrappedValue: PlateViewModel(plateService: plateService))
     }
 
@@ -53,10 +55,12 @@ struct PlateListView: View {
             .sheet(isPresented: $viewModel.showAddPlate) {
                 AddPlateView(viewModel: viewModel, uid: authService.currentUser?.uid ?? "")
             }
-            .task {
-                if let uid = authService.currentUser?.uid {
-                    await viewModel.loadPlates(for: uid)
-                }
+            .task(id: isTabActive) {
+                guard isTabActive,
+                      !viewModel.hasLoadedInitialPlates,
+                      let uid = authService.currentUser?.uid else { return }
+
+                await viewModel.loadPlates(for: uid)
             }
         }
     }
@@ -122,7 +126,10 @@ struct PlateListView: View {
                         }
                         .swipeActions(edge: .leading, allowsFullSwipe: true) {
                             Button {
-                                viewModel.toggleFavorite(plate.id)
+                                guard let uid = authService.currentUser?.uid else { return }
+                                Task {
+                                    await viewModel.toggleFavorite(plate.id, for: uid)
+                                }
                             } label: {
                                 Label(
                                     plate.isFavorite ? "Retirer" : "Favoris",

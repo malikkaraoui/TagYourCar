@@ -14,13 +14,6 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         // Configurer le delegate des notifications
         UNUserNotificationCenter.current().delegate = notificationHandler
 
-        #if DEBUG
-        // Diagnostics retardés pour ne jamais polluer le premier affichage
-        DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-            HealthCheck.scheduleStartupChecks()
-        }
-        #endif
-
         return true
     }
 

@@ -10,6 +10,7 @@ final class PlateViewModel: ObservableObject {
     @Published var state: ViewState = .idle
     @Published var errorMessage: String?
     @Published var showAddPlate = false
+    @Published private(set) var hasLoadedInitialPlates = false
 
     private let plateService: PlateService
     private let logger = Logger(subsystem: "com.tagyourcar", category: "PlateViewModel")
@@ -45,6 +46,7 @@ final class PlateViewModel: ObservableObject {
         state = .loading
         await plateService.fetchPlates(for: uid)
         plates = plateService.plates
+        hasLoadedInitialPlates = true
         state = .loaded
     }
 
@@ -108,18 +110,22 @@ final class PlateViewModel: ObservableObject {
         }
     }
 
-    func toggleFavorite(_ plateId: String) {
-        for i in plates.indices {
-            if plates[i].id == plateId {
-                plates[i].isFavorite.toggle()
-            } else {
-                // Une seule plaque favorite à la fois
-                plates[i].isFavorite = false
-            }
+    func toggleFavorite(_ plateId: String, for uid: String) async {
+        let isAlreadyFavorite = plates.first(where: { $0.id == plateId })?.isFavorite == true
+        let nextFavoritePlateId = isAlreadyFavorite ? nil : plateId
+
+        do {
+            try await plateService.updateFavoritePlate(nextFavoritePlateId, for: uid)
+            plates = plateService.plates
+            haptic.prepare()
+            haptic.notificationOccurred(.success)
+            logger.info("Favori persiste : \(nextFavoritePlateId ?? "aucun")")
+        } catch {
+            errorMessage = "Impossible de sauvegarder le favori. Réessayez."
+            haptic.prepare()
+            haptic.notificationOccurred(.error)
+            logger.error("Echec sauvegarde favori : \(error.localizedDescription)")
         }
-        haptic.prepare()
-        haptic.notificationOccurred(.success)
-        logger.info("Favori mis à jour : \(plateId)")
     }
 
     func resetInput() {
