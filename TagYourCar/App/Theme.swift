@@ -78,6 +78,15 @@ enum Theme {
         }
     }
 
+    // MARK: - Sizing
+
+    enum Sizing {
+        static let tileCompact: CGFloat = 72
+        static let tileRegular: CGFloat = 88
+        static let tileIconSmall: CGFloat = 24
+        static let tileIconRegular: CGFloat = 36
+    }
+
     // MARK: - Animation
 
     enum Animation {
