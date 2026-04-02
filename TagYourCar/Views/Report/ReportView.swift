@@ -163,7 +163,7 @@ struct ReportView: View {
         .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
     }
 
-    // MARK: - Etape 4 : Saisie plaque + envoi automatique
+    // MARK: - Étape 4 : Saisie plaque + validation manuelle
 
     private var plateStep: some View {
         VStack(spacing: Theme.Spacing.lg) {
@@ -178,7 +178,7 @@ struct ReportView: View {
             PlateTextField(text: $viewModel.plateText, isValid: viewModel.isPlateValid)
                 .padding(.horizontal, Theme.Spacing.xl)
                 .accessibilityLabel("Champ plaque d'immatriculation")
-                .accessibilityHint("Format AA-123-AA. L'envoi sera automatique.")
+                .accessibilityHint("Format AA-123-AA")
                 .disabled(viewModel.isSubmitting)
 
             if viewModel.isSubmitting {
@@ -197,16 +197,31 @@ struct ReportView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, Theme.Spacing.xl)
             }
-        }
-        .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
-        .onChange(of: viewModel.plateText) { _ in
-            if viewModel.isPlateValid && !viewModel.isSubmitting,
-               authService.currentUser != nil {
-                Task {
-                    await viewModel.submitReport()
+
+            // Bouton d'envoi explicite
+            if !viewModel.isSubmitting {
+                Button {
+                    guard authService.currentUser != nil else { return }
+                    Task {
+                        await viewModel.submitReport()
+                    }
+                } label: {
+                    Text("Envoyer le signalement")
+                        .font(Theme.Typography.bodyMedium)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 52)
+                        .background(viewModel.isPlateValid ? Theme.Colors.accentInteractive : Theme.Colors.accentMuted)
+                        .foregroundStyle(Theme.Colors.textOnAccent)
+                        .cornerRadius(Theme.Radius.lg)
                 }
+                .disabled(!viewModel.isPlateValid)
+                .opacity(viewModel.isPlateValid ? 1 : 0.6)
+                .accentGlow()
+                .padding(.horizontal, Theme.Spacing.xl)
+                .transition(.opacity)
             }
         }
+        .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
     }
 
     // MARK: - Navigation arriere
