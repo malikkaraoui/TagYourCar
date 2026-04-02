@@ -7,23 +7,29 @@ export const deletePlate = onCall({ secrets: ["PLATE_HASH_SALT"] }, async (reque
     throw new HttpsError("unauthenticated", "Authentification requise.");
   }
 
-  const { plate } = request.data;
-  if (!plate || typeof plate !== "string") {
-    throw new HttpsError("invalid-argument", "Plaque manquante ou invalide.");
-  }
+  const { plate, plateHash: directHash } = request.data;
 
   const uid = request.auth.uid;
   const db = getFirestore();
 
-  const salt = process.env.PLATE_HASH_SALT;
-  if (!salt) {
-    throw new HttpsError("internal", "Configuration serveur manquante.");
-  }
+  let plateHash: string;
 
-  const plateHash = crypto
-    .createHash("sha256")
-    .update(plate + salt)
-    .digest("hex");
+  if (directHash && typeof directHash === "string") {
+    // Suppression par hash direct (depuis le client qui a déjà le doc ID)
+    plateHash = directHash;
+  } else if (plate && typeof plate === "string") {
+    // Suppression par texte de plaque (hashage côté serveur)
+    const salt = process.env.PLATE_HASH_SALT;
+    if (!salt) {
+      throw new HttpsError("internal", "Configuration serveur manquante.");
+    }
+    plateHash = crypto
+      .createHash("sha256")
+      .update(plate + salt)
+      .digest("hex");
+  } else {
+    throw new HttpsError("invalid-argument", "Plaque manquante ou invalide.");
+  }
 
   const plateDoc = await db.collection("plates").doc(plateHash).get();
 

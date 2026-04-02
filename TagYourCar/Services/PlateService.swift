@@ -53,7 +53,7 @@ final class PlateService: ObservableObject {
             throw TagYourCarError.firebaseNotConfigured
         }
 
-        let result = try await functions.httpsCallable("deletePlate").call(["plate": plateText])
+        let result = try await functions.httpsCallable("deletePlate").call(["plateHash": plateText])
 
         guard let data = result.data as? [String: Any],
               let success = data["success"] as? Bool, success else {
