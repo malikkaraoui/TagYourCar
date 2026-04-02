@@ -14,9 +14,9 @@ struct ContentView: View {
 
             if showSplash {
                 // Splash branding 2s — Firebase s'initialise en parallèle
-                VStack(spacing: Theme.Spacing.md) {
-                    Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.system(size: 44))
+                VStack(spacing: Theme.Spacing.lg) {
+                    Image(systemName: "car.fill")
+                        .font(.system(size: 48))
                         .foregroundStyle(Theme.Colors.accentInteractive)
                     Text("TagYourCar")
                         .font(Theme.Typography.display)
