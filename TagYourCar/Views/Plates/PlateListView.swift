@@ -71,11 +71,11 @@ struct PlateListView: View {
                 .clipShape(Circle())
 
             VStack(spacing: Theme.Spacing.sm) {
-                Text("Aucune plaque enregistree")
+                Text("Aucune plaque enregistrée")
                     .font(Theme.Typography.h2)
                     .foregroundStyle(Theme.Colors.textPrimary)
 
-                Text("Ajoutez votre premiere plaque pour recevoir des notifications quand quelqu'un signale un probleme sur votre vehicule.")
+                Text("Ajoutez votre première plaque pour recevoir des notifications quand quelqu'un signale un problème sur votre véhicule.")
                     .font(Theme.Typography.body)
                     .foregroundStyle(Theme.Colors.textSecondary)
                     .multilineTextAlignment(.center)
@@ -154,7 +154,7 @@ struct PlateListView: View {
                 }
             }
         } message: {
-            Text("Cette action est irreversible. Vous ne recevrez plus de notifications pour ce vehicule.")
+            Text("Cette action est irréversible. Vous ne recevrez plus de notifications pour ce véhicule.")
         }
     }
 }

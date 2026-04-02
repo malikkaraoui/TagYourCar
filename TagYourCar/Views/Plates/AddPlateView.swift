@@ -13,7 +13,7 @@ struct AddPlateView: View {
                     .foregroundStyle(Theme.Colors.textPrimary)
                     .frame(maxWidth: .infinity, alignment: .leading)
 
-                Text("Saisissez votre plaque d'immatriculation au format francais.")
+                Text("Saisissez votre plaque d'immatriculation au format français.")
                     .font(Theme.Typography.body)
                     .foregroundStyle(Theme.Colors.textSecondary)
 
@@ -29,7 +29,7 @@ struct AddPlateView: View {
                 HStack(spacing: Theme.Spacing.sm) {
                     Image(systemName: "lock.shield.fill")
                         .foregroundStyle(Theme.Colors.accentPrimary)
-                    Text("Votre plaque est chiffree et illisible, meme par nous.")
+                    Text("Votre plaque est chiffrée et illisible, même par nous.")
                         .font(Theme.Typography.caption)
                         .foregroundStyle(Theme.Colors.textSecondary)
                 }
