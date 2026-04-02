@@ -26,6 +26,18 @@ struct ReportView: View {
                     Spacer()
                 }
                 .background(Theme.Colors.bgPrimary.ignoresSafeArea())
+                .gesture(
+                    viewModel.currentStep != .zone && !viewModel.isSubmitting
+                    ? DragGesture(minimumDistance: 40, coordinateSpace: .local)
+                        .onEnded { value in
+                            if value.translation.width > 80 {
+                                withAnimation(.easeInOut(duration: 0.25)) {
+                                    goBack()
+                                }
+                            }
+                        }
+                    : nil
+                )
                 .navigationTitle("Signaler")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
