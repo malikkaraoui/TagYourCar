@@ -115,15 +115,13 @@ final class PlateService: ObservableObject {
 
             self.plates = platesSnapshot.documents.compactMap { doc in
                 let data = doc.data()
-                let docId = doc.documentID
-                let fallbackDisplay = String(docId.prefix(4)).uppercased()
                 return Plate(
-                    id: docId,
+                    id: doc.documentID,
                     ownerUid: data["ownerUid"] as? String ?? "",
                     addedAt: (data["addedAt"] as? Timestamp)?.dateValue() ?? Date(),
                     verified: data["verified"] as? Bool ?? false,
                     isFavorite: data["isFavorite"] as? Bool ?? false,
-                    displayPlate: data["displayPlate"] as? String ?? "••-•••-\(fallbackDisplay)"
+                    displayPlate: data["displayPlate"] as? String ?? "Plaque à restaurer"
                 )
             }
             logger.info("Fetched \(self.plates.count) plates for user \(uid)")

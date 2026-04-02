@@ -76,3 +76,51 @@ describe("plate limit", () => {
     expect(currentCount >= MAX_PLATES_PER_USER).toBe(true);
   });
 });
+
+describe("existing owned plate reconciliation", () => {
+  function reconcileOwnedPlate(params: {
+    ownerUid: string;
+    currentUid: string;
+    existingIsFavorite?: boolean;
+    inputPlate: string;
+  }) {
+    if (params.ownerUid !== params.currentUid) {
+      return { action: "reject" };
+    }
+
+    return {
+      action: "merge",
+      payload: {
+        displayPlate: params.inputPlate,
+        isFavorite: params.existingIsFavorite === true,
+      },
+    };
+  }
+
+  test("meme proprietaire : la plaque est remise en clair sans creer de doublon", () => {
+    const result = reconcileOwnedPlate({
+      ownerUid: "user-1",
+      currentUid: "user-1",
+      existingIsFavorite: true,
+      inputPlate: "CK-442-NS",
+    });
+
+    expect(result).toEqual({
+      action: "merge",
+      payload: {
+        displayPlate: "CK-442-NS",
+        isFavorite: true,
+      },
+    });
+  });
+
+  test("autre proprietaire : la plaque reste rejetee", () => {
+    const result = reconcileOwnedPlate({
+      ownerUid: "user-1",
+      currentUid: "user-2",
+      inputPlate: "CK-442-NS",
+    });
+
+    expect(result).toEqual({ action: "reject" });
+  });
+});

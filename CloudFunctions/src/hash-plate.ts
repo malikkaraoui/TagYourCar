@@ -27,19 +27,6 @@ export const hashPlate = onCall({ secrets: ["PLATE_HASH_SALT"] }, async (request
   const uid = request.auth.uid;
   const db = getFirestore();
 
-  // Check plate limit (max 5)
-  const userPlates = await db
-    .collection("plates")
-    .where("ownerUid", "==", uid)
-    .get();
-
-  if (userPlates.size >= MAX_PLATES_PER_USER) {
-    throw new HttpsError(
-      "resource-exhausted",
-      "Limite de 5 plaques atteinte."
-    );
-  }
-
   // Hash plate with salt
   const salt = process.env.PLATE_HASH_SALT;
   if (!salt) {
@@ -56,16 +43,39 @@ export const hashPlate = onCall({ secrets: ["PLATE_HASH_SALT"] }, async (request
   if (existingPlate.exists) {
     const data = existingPlate.data();
     if (data?.ownerUid === uid) {
-      throw new HttpsError(
-        "already-exists",
-        "Cette plaque est deja enregistree sur votre compte."
+      await existingPlate.ref.set(
+        {
+          displayPlate: plate,
+          isFavorite: data?.isFavorite === true,
+        },
+        { merge: true }
       );
+
+      return {
+        success: true,
+        plateHash,
+        alreadyOwned: true,
+        message: "Plaque deja synchronisee sur votre compte.",
+      };
     } else {
       throw new HttpsError(
         "already-exists",
         "Cette plaque est deja enregistree par un autre utilisateur."
       );
     }
+  }
+
+  // Check plate limit (max 5)
+  const userPlates = await db
+    .collection("plates")
+    .where("ownerUid", "==", uid)
+    .get();
+
+  if (userPlates.size >= MAX_PLATES_PER_USER) {
+    throw new HttpsError(
+      "resource-exhausted",
+      "Limite de 5 plaques atteinte."
+    );
   }
 
   // Store plate avec la plaque en clair pour l'affichage
@@ -77,5 +87,10 @@ export const hashPlate = onCall({ secrets: ["PLATE_HASH_SALT"] }, async (request
     displayPlate: plate,
   });
 
-  return { success: true, message: "Plaque enregistree avec succes." };
+  return {
+    success: true,
+    plateHash,
+    alreadyOwned: false,
+    message: "Plaque enregistree avec succes.",
+  };
 });

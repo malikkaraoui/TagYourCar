@@ -29,7 +29,7 @@ struct AddPlateView: View {
                 HStack(spacing: Theme.Spacing.sm) {
                     Image(systemName: "lock.shield.fill")
                         .foregroundStyle(Theme.Colors.accentPrimary)
-                    Text("Votre plaque est chiffrée et illisible, même par nous.")
+                    Text("Votre plaque reste privée et n'est visible que dans votre espace propriétaire.")
                         .font(Theme.Typography.caption)
                         .foregroundStyle(Theme.Colors.textSecondary)
                 }

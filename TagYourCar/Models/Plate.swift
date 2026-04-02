@@ -6,5 +6,5 @@ struct Plate: Identifiable, Equatable {
     let addedAt: Date
     let verified: Bool
     var isFavorite: Bool = false
-    let displayPlate: String // Masquage partiel lisible : AB-•••-CD
+    let displayPlate: String // Plaque affichée en clair pour le propriétaire
 }
