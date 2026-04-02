@@ -4,27 +4,31 @@ struct ContentView: View {
     @EnvironmentObject var authService: AuthService
     @StateObject private var plateService = PlateService()
     @ObservedObject var notificationHandler: NotificationHandler
+    @State private var showSplash = true
 
     var body: some View {
         ZStack {
             Theme.Colors.bgPrimary
                 .ignoresSafeArea()
 
-            if !authService.isReady {
-                // Splash SwiftUI — remplace le LaunchScreen dès que la vue est montée
+            if showSplash {
+                // Splash branding 2s — Firebase s'initialise en parallèle
                 VStack(spacing: Theme.Spacing.md) {
                     Image(systemName: "exclamationmark.triangle.fill")
-                        .font(.system(size: 40))
+                        .font(.system(size: 44))
                         .foregroundStyle(Theme.Colors.accentInteractive)
                     Text("TagYourCar")
                         .font(Theme.Typography.display)
                         .foregroundStyle(Theme.Colors.textPrimary)
                         .tracking(-0.5)
                 }
+                .transition(.opacity)
             } else if authService.isAuthenticated {
                 TabBarView(plateService: plateService)
+                    .transition(.opacity)
             } else {
                 LoginView(authService: authService)
+                    .transition(.opacity)
             }
 
             // Ecran detail signalement par-dessus (deep link notification)
@@ -39,6 +43,12 @@ struct ContentView: View {
             }
         }
         .animation(.easeInOut(duration: 0.3), value: notificationHandler.showReportDetail)
+        .animation(.easeInOut(duration: 0.4), value: showSplash)
+        .task {
+            // Splash branding : 2 secondes minimum
+            try? await Task.sleep(nanoseconds: 2_000_000_000)
+            showSplash = false
+        }
     }
 }
 
