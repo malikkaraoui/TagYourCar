@@ -57,7 +57,7 @@ struct ProblemTypePicker: View {
         switch problem {
         // Zone avant
         case .headlightsOn: return "light.beacon.max"
-        case .hoodOpen: return "car.top.radiator.coolant.fill"
+        case .hoodOpen: return "car.front.waves.up"
         case .chargeFlapOpen: return "bolt.car"
         case .flatTireFront: return "circle.slash"
         case .otherFront: return "questionmark.circle"

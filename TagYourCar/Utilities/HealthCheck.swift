@@ -5,6 +5,12 @@ import os
 /// Utilitaire pour vérifier la santé de l'application au démarrage
 enum HealthCheck {
     private static let logger = Logger(subsystem: "com.tagyourcar", category: "HealthCheck")
+
+    static func scheduleStartupChecks() {
+        DispatchQueue.global(qos: .utility).async {
+            performStartupChecks()
+        }
+    }
     
     /// Vérifie que Firebase est correctement configuré
     static func verifyFirebaseConfiguration() -> Bool {

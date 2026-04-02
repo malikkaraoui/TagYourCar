@@ -2,30 +2,34 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var authService: AuthService
-    @StateObject private var plateService = PlateService()
     @StateObject private var networkMonitor = NetworkMonitor()
     @ObservedObject var notificationHandler: NotificationHandler
-    @State private var showSplash = true
+    @State private var showLaunchBridge = true
 
     var body: some View {
+        ZStack {
+            if showLaunchBridge {
+                LaunchBridgeView()
+                    .transition(.identity)
+            } else {
+                mainContent
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeOut(duration: 0.18), value: showLaunchBridge)
+        .task {
+            authService.activateIfNeeded()
+            dismissLaunchBridgeIfNeeded()
+        }
+    }
+
+    private var mainContent: some View {
         ZStack {
             Theme.Colors.bgPrimary
                 .ignoresSafeArea()
 
-            if showSplash {
-                // Splash branding 2s — Firebase s'initialise en parallèle
-                VStack(spacing: Theme.Spacing.lg) {
-                    Image(systemName: "car.fill")
-                        .font(.system(size: 48))
-                        .foregroundStyle(Theme.Colors.accentInteractive)
-                    Text("TagYourCar")
-                        .font(Theme.Typography.display)
-                        .foregroundStyle(Theme.Colors.textPrimary)
-                        .tracking(-0.5)
-                }
-                .transition(.opacity)
-            } else if authService.isAuthenticated {
-                TabBarView(plateService: plateService)
+            if authService.isAuthenticated {
+                AuthenticatedRootView()
                     .transition(.opacity)
             } else {
                 LoginView(authService: authService)
@@ -33,7 +37,7 @@ struct ContentView: View {
             }
 
             // Bandeau hors connexion
-            if !showSplash && !networkMonitor.isConnected {
+            if !networkMonitor.isConnected {
                 VStack {
                     HStack(spacing: Theme.Spacing.sm) {
                         Image(systemName: "wifi.slash")
@@ -64,12 +68,42 @@ struct ContentView: View {
         }
         .animation(.easeInOut(duration: 0.3), value: networkMonitor.isConnected)
         .animation(.easeInOut(duration: 0.3), value: notificationHandler.showReportDetail)
-        .animation(.easeInOut(duration: 0.4), value: showSplash)
-        .task {
-            // Splash branding : 2 secondes minimum
-            try? await Task.sleep(nanoseconds: 2_000_000_000)
-            showSplash = false
+    }
+
+    private func dismissLaunchBridgeIfNeeded() {
+        guard showLaunchBridge else { return }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            showLaunchBridge = false
         }
+    }
+}
+
+private struct LaunchBridgeView: View {
+    var body: some View {
+        ZStack {
+            Theme.Colors.bgPrimary
+                .ignoresSafeArea()
+
+            VStack(spacing: Theme.Spacing.md) {
+                Text("TagYourCar")
+                    .font(.system(size: 34, weight: .bold))
+                    .foregroundStyle(Theme.Colors.textPrimary)
+
+                Text("Signalez. Protégez. Communauté.")
+                    .font(Theme.Typography.bodySmall)
+                    .foregroundStyle(Theme.Colors.textSecondary)
+            }
+            .offset(y: -34)
+        }
+    }
+}
+
+private struct AuthenticatedRootView: View {
+    @StateObject private var plateService = PlateService()
+
+    var body: some View {
+        TabBarView(plateService: plateService)
     }
 }
 

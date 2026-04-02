@@ -7,24 +7,16 @@ import os
 @MainActor
 final class PlateService: ObservableObject {
     @Published var plates: [Plate] = []
-    private var isFirebaseConfigured = false
 
-    private lazy var db: Firestore? = {
+    private var db: Firestore? {
         guard FirebaseApp.app() != nil else { return nil }
         return Firestore.firestore()
-    }()
-    private lazy var functions: Functions? = {
+    }
+    private var functions: Functions? {
         guard FirebaseApp.app() != nil else { return nil }
         return Functions.functions()
-    }()
-    private let logger = Logger(subsystem: "com.tagyourcar", category: "PlateService")
-
-    init() {
-        self.isFirebaseConfigured = FirebaseApp.app() != nil
-        if !isFirebaseConfigured {
-            logger.error("Firebase non configure — PlateService ne fonctionnera pas")
-        }
     }
+    private let logger = Logger(subsystem: "com.tagyourcar", category: "PlateService")
 
     // MARK: - Add Plate
 

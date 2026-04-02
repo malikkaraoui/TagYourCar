@@ -19,24 +19,25 @@ struct LoginView: View {
             ScrollView {
                 VStack(spacing: Theme.Spacing.lg) {
 
-                    // Hero
-                    VStack(spacing: Theme.Spacing.sm) {
-                        Spacer().frame(height: Theme.Spacing.xxl)
+                    // En-tête compact pour éviter l'effet "deuxième splash"
+                    VStack(alignment: .leading, spacing: Theme.Spacing.xs) {
+                        HStack(spacing: Theme.Spacing.sm) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .font(.system(size: 22, weight: .bold))
+                                .foregroundStyle(Theme.Colors.accentInteractive)
 
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.system(size: 44))
-                            .foregroundStyle(Theme.Colors.accentInteractive)
+                            Text("TagYourCar")
+                                .font(Theme.Typography.h1)
+                                .foregroundStyle(Theme.Colors.textPrimary)
+                        }
 
-                        Text("TagYourCar")
-                            .font(Theme.Typography.display)
-                            .foregroundStyle(Theme.Colors.textPrimary)
-                            .tracking(-0.5)
-
-                        Text("Signalez. Protégez. Communauté.")
+                        Text("Connectez-vous pour signaler un problème ou recevoir vos alertes véhicule.")
                             .font(Theme.Typography.bodySmall)
                             .foregroundStyle(Theme.Colors.textSecondary)
                     }
-                    .padding(.bottom, Theme.Spacing.md)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, Theme.Spacing.lg)
+                    .padding(.bottom, Theme.Spacing.xs)
 
                     // Social Sign-In Buttons
                     VStack(spacing: Theme.Spacing.sm) {

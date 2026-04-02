@@ -15,20 +15,23 @@ final class AuthService: ObservableObject {
     @Published var isReady = false
     @Published var needsCGUAcceptance = false
 
-    private lazy var auth: Auth? = {
+    private var auth: Auth? {
         guard FirebaseApp.app() != nil else { return nil }
         return Auth.auth()
-    }()
-    private lazy var db: Firestore? = {
+    }
+    private var db: Firestore? {
         guard FirebaseApp.app() != nil else { return nil }
         return Firestore.firestore()
-    }()
+    }
     private let logger = Logger(subsystem: "com.tagyourcar", category: "AuthService")
     private nonisolated(unsafe) var authStateListener: AuthStateDidChangeListenerHandle?
     private var currentNonce: String?
     private var authListenerStarted = false
     private var isFirebaseConfigured: Bool {
         FirebaseApp.app() != nil
+    }
+    var hasResolvedInitialRoute: Bool {
+        isReady || isAuthenticated || currentUser != nil
     }
 
     init() {
@@ -47,8 +50,13 @@ final class AuthService: ObservableObject {
     }
 
     private func restoreCachedUser() {
-        guard let data = UserDefaults.standard.data(forKey: Self.cachedUserKey),
-              let user = try? JSONDecoder().decode(AppUser.self, from: data) else { return }
+        guard let data = UserDefaults.standard.data(forKey: Self.cachedUserKey) else { return }
+        guard let user = try? JSONDecoder().decode(AppUser.self, from: data) else {
+            logger.error("Cache utilisateur invalide — purge du profil local")
+            clearCachedUser()
+            return
+        }
+
         currentUser = user
         isAuthenticated = true
         logger.info("Profil restauré depuis le cache local : \(user.uid)")
@@ -65,15 +73,36 @@ final class AuthService: ObservableObject {
             return
         }
 
+        let localFirebaseUser = auth?.currentUser
+        applyLocalSession(firebaseUser: localFirebaseUser)
+
         guard !authListenerStarted else { return }
         listenToAuthState()
+    }
 
-        if let auth, let firebaseUser = auth.currentUser {
-            isAuthenticated = true
-            Task { @MainActor [weak self] in
-                await self?.fetchOrCreateUser(firebaseUser: firebaseUser)
-            }
+    private func applyLocalSession(firebaseUser: FirebaseAuth.User?) {
+        guard let firebaseUser else {
+            isAuthenticated = false
+            currentUser = nil
+            clearCachedUser()
+            isReady = true
+            return
         }
+
+        isAuthenticated = true
+
+        if currentUser?.uid != firebaseUser.uid {
+            let bootstrappedUser = AppUser(
+                uid: firebaseUser.uid,
+                email: firebaseUser.email ?? currentUser?.email ?? "",
+                displayName: firebaseUser.displayName ?? currentUser?.displayName ?? "",
+                createdAt: currentUser?.createdAt ?? Date()
+            )
+            currentUser = bootstrappedUser
+            cacheUser(bootstrappedUser)
+        }
+
+        isReady = true
     }
 
     // MARK: - Auth State Listener
@@ -91,19 +120,9 @@ final class AuthService: ObservableObject {
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 if let firebaseUser {
-                    self.isAuthenticated = true
+                    self.applyLocalSession(firebaseUser: firebaseUser)
                 } else {
-                    self.isAuthenticated = false
-                    self.currentUser = nil
-                    self.clearCachedUser()
-                }
-                // Débloquer l'UI immédiatement
-                if !self.isReady {
-                    self.isReady = true
-                }
-                // Charger le profil utilisateur sans bloquer l'affichage
-                if let firebaseUser {
-                    await self.fetchOrCreateUser(firebaseUser: firebaseUser)
+                    self.applyLocalSession(firebaseUser: nil)
                 }
             }
         }
@@ -143,6 +162,7 @@ final class AuthService: ObservableObject {
             try await db.collection("users").document(result.user.uid).setData(from: appUser)
             self.currentUser = appUser
             self.isAuthenticated = true
+            cacheUser(appUser)
             logger.info("User signed up via email: \(result.user.uid)")
         } catch {
             logger.error("Finalisation inscription email echouee: \(error.localizedDescription)")
@@ -170,7 +190,11 @@ final class AuthService: ObservableObject {
 
         let normalizedEmail = email.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         let result = try await auth.signIn(withEmail: normalizedEmail, password: password)
-        await fetchOrCreateUser(firebaseUser: result.user)
+        await fetchOrCreateUser(
+            uid: result.user.uid,
+            email: result.user.email ?? normalizedEmail,
+            displayName: result.user.displayName ?? currentUser?.displayName ?? ""
+        )
         logger.info("User signed in via email: \(result.user.uid)")
     }
 
@@ -205,7 +229,11 @@ final class AuthService: ObservableObject {
         )
 
         let result = try await auth.signIn(with: credential)
-        await fetchOrCreateUser(firebaseUser: result.user)
+        await fetchOrCreateUser(
+            uid: result.user.uid,
+            email: result.user.email ?? currentUser?.email ?? "",
+            displayName: result.user.displayName ?? currentUser?.displayName ?? ""
+        )
         logger.info("User signed in via Apple: \(result.user.uid)")
     }
 
@@ -235,7 +263,11 @@ final class AuthService: ObservableObject {
         )
 
         let authResult = try await auth.signIn(with: credential)
-        await fetchOrCreateUser(firebaseUser: authResult.user)
+        await fetchOrCreateUser(
+            uid: authResult.user.uid,
+            email: authResult.user.email ?? currentUser?.email ?? "",
+            displayName: authResult.user.displayName ?? currentUser?.displayName ?? ""
+        )
         logger.info("User signed in via Google: \(authResult.user.uid)")
     }
 
@@ -253,7 +285,11 @@ final class AuthService: ObservableObject {
 
         let credential = try await provider.credential(with: nil)
         let result = try await auth.signIn(with: credential)
-        await fetchOrCreateUser(firebaseUser: result.user)
+        await fetchOrCreateUser(
+            uid: result.user.uid,
+            email: result.user.email ?? currentUser?.email ?? "",
+            displayName: result.user.displayName ?? currentUser?.displayName ?? ""
+        )
         logger.info("User signed in via GitHub: \(result.user.uid)")
     }
 
@@ -273,12 +309,14 @@ final class AuthService: ObservableObject {
             "displayName": displayName
         ])
 
-        currentUser = AppUser(
+        let updatedUser = AppUser(
             uid: user.uid,
             email: currentUser?.email ?? user.email ?? "",
             displayName: displayName,
             createdAt: currentUser?.createdAt ?? Date()
         )
+        currentUser = updatedUser
+        cacheUser(updatedUser)
 
         logger.info("Profile updated: \(displayName)")
     }
@@ -330,29 +368,29 @@ final class AuthService: ObservableObject {
 
     // MARK: - Fetch or Create User
 
-    private func fetchOrCreateUser(firebaseUser: FirebaseAuth.User) async {
+    private func fetchOrCreateUser(uid: String, email: String, displayName: String) async {
         guard let db else {
             logger.warning("Firestore indisponible — utilisateur non synchronise")
             return
         }
 
         do {
-            let document = try await db.collection("users").document(firebaseUser.uid).getDocument()
+            let document = try await db.collection("users").document(uid).getDocument()
             if document.exists {
                 let user = try document.data(as: AppUser.self)
                 self.currentUser = user
                 cacheUser(user)
             } else {
                 let appUser = AppUser(
-                    uid: firebaseUser.uid,
-                    email: firebaseUser.email ?? "",
-                    displayName: firebaseUser.displayName ?? "",
+                    uid: uid,
+                    email: email,
+                    displayName: displayName,
                     createdAt: Date()
                 )
-                try await db.collection("users").document(firebaseUser.uid).setData(from: appUser)
+                try await db.collection("users").document(uid).setData(from: appUser)
                 self.currentUser = appUser
                 cacheUser(appUser)
-                logger.info("Created Firestore user for social sign-in: \(firebaseUser.uid)")
+                logger.info("Created Firestore user for social sign-in: \(uid)")
             }
         } catch {
             logger.error("Failed to fetch/create user: \(error.localizedDescription)")

@@ -1,5 +1,4 @@
 import SwiftUI
-import FirebaseCore
 
 @main
 struct TagYourCarApp: App {
@@ -7,7 +6,7 @@ struct TagYourCarApp: App {
     @StateObject private var authService: AuthService
 
     init() {
-        // Firebase est configuré dans AppDelegate - pas de duplication
+        FirebaseBootstrap.configureIfNeeded()
         _authService = StateObject(wrappedValue: AuthService())
     }
 
@@ -15,9 +14,6 @@ struct TagYourCarApp: App {
         WindowGroup {
             ContentView(notificationHandler: delegate.notificationHandler)
                 .environmentObject(authService)
-                .task {
-                    authService.activateIfNeeded()
-                }
         }
     }
 }
