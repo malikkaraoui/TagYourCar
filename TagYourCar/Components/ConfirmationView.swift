@@ -61,17 +61,17 @@ struct ConfirmationView: View {
                 .scaleEffect(showCheck ? 1.0 : 0.3)
                 .opacity(showCheck ? 1.0 : 0.0)
 
-            Text("C'est envoye !")
+            Text("C'est envoyé !")
                 .font(Theme.Typography.display)
                 .foregroundStyle(.white)
                 .tracking(-0.5)
 
-            Text("Le proprietaire sera notifie.")
+            Text("Le propriétaire sera notifié.")
                 .font(Theme.Typography.bodyMedium)
                 .foregroundStyle(.white.opacity(0.85))
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("Signalement envoye avec succes. Le proprietaire sera notifie.")
+        .accessibilityLabel("Signalement envoye avec succes. Le propriétaire sera notifié.")
     }
 
     // MARK: - Plaque non enregistree
@@ -89,7 +89,7 @@ struct ConfirmationView: View {
                 .foregroundStyle(Theme.Colors.textPrimary)
                 .multilineTextAlignment(.center)
 
-            Text("Laissez un petit mot sur le pare-brise pour qu'il decouvre l'app !")
+            Text("Laissez un petit mot sur le pare-brise pour qu'il découvre l'app !")
                 .font(Theme.Typography.body)
                 .foregroundStyle(Theme.Colors.textSecondary)
                 .multilineTextAlignment(.center)
