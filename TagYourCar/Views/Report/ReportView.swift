@@ -12,26 +12,19 @@ struct ReportView: View {
 
                     Spacer()
 
-                    switch viewModel.currentStep {
-                    case .zone:
-                        zoneStep
-                    case .problem:
-                        problemStep
-                    case .color:
-                        colorStep
-                    case .plate:
-                        plateStep
-                    }
+                    stepContent
+                        .id(viewModel.currentStep)
+                        .transition(stepTransition)
 
                     Spacer()
                 }
                 .background(Theme.Colors.bgPrimary.ignoresSafeArea())
                 .gesture(
                     viewModel.currentStep != .zone && !viewModel.isSubmitting
-                    ? DragGesture(minimumDistance: 40, coordinateSpace: .local)
+                    ? DragGesture(minimumDistance: 60, coordinateSpace: .local)
                         .onEnded { value in
                             if value.translation.width > 80 {
-                                withAnimation(.easeInOut(duration: 0.25)) {
+                                withAnimation(Theme.Animation.smooth) {
                                     goBack()
                                 }
                             }
@@ -44,7 +37,7 @@ struct ReportView: View {
                     if viewModel.currentStep != .zone && !viewModel.isSubmitting {
                         ToolbarItem(placement: .topBarLeading) {
                             Button {
-                                withAnimation(.easeInOut(duration: 0.25)) {
+                                withAnimation(Theme.Animation.smooth) {
                                     goBack()
                                 }
                             } label: {
@@ -66,7 +59,7 @@ struct ReportView: View {
                 ConfirmationView(
                     variant: result == .sent ? .success : .notRegistered,
                     onDismiss: {
-                        withAnimation(.easeInOut(duration: 0.3)) {
+                        withAnimation(Theme.Animation.smooth) {
                             viewModel.resetReport()
                         }
                     }
@@ -75,7 +68,40 @@ struct ReportView: View {
                 .zIndex(1)
             }
         }
-        .animation(.easeInOut(duration: 0.3), value: viewModel.showConfirmation)
+        .animation(Theme.Animation.smooth, value: viewModel.showConfirmation)
+    }
+
+    // MARK: - Transition directionnelle
+
+    private var stepTransition: AnyTransition {
+        switch viewModel.navigationDirection {
+        case .forward:
+            return .asymmetric(
+                insertion: .move(edge: .trailing),
+                removal: .move(edge: .leading)
+            )
+        case .backward:
+            return .asymmetric(
+                insertion: .move(edge: .leading),
+                removal: .move(edge: .trailing)
+            )
+        }
+    }
+
+    // MARK: - Contenu de l'etape courante
+
+    @ViewBuilder
+    private var stepContent: some View {
+        switch viewModel.currentStep {
+        case .zone:
+            zoneStep
+        case .problem:
+            problemStep
+        case .color:
+            colorStep
+        case .plate:
+            plateStep
+        }
     }
 
     // MARK: - Indicateur d'etape
@@ -85,14 +111,14 @@ struct ReportView: View {
             ForEach(0..<4) { index in
                 Capsule()
                     .fill(index <= viewModel.currentStep.rawValue
-                          ? Theme.Colors.accentPrimary
+                          ? Theme.Colors.accentInteractive
                           : Theme.Colors.bgSeparator)
                     .frame(height: 4)
             }
         }
         .padding(.horizontal, Theme.Spacing.xl)
         .padding(.top, Theme.Spacing.sm)
-        .animation(.easeInOut(duration: 0.25), value: viewModel.currentStep)
+        .animation(Theme.Animation.smooth, value: viewModel.currentStep)
     }
 
     // MARK: - Etape 1 : Selection de zone
@@ -107,14 +133,13 @@ struct ReportView: View {
                 get: { viewModel.selectedZone },
                 set: { zone in
                     if let zone {
-                        withAnimation(.easeInOut(duration: 0.25)) {
+                        withAnimation(Theme.Animation.smooth) {
                             viewModel.selectZone(zone)
                         }
                     }
                 }
             ))
         }
-        .transition(.asymmetric(insertion: .move(edge: .leading), removal: .move(edge: .leading)))
     }
 
     // MARK: - Etape 2 : Selection de probleme
@@ -130,7 +155,7 @@ struct ReportView: View {
                     get: { viewModel.selectedProblem },
                     set: { problem in
                         if let problem {
-                            withAnimation(.easeInOut(duration: 0.25)) {
+                            withAnimation(Theme.Animation.smooth) {
                                 viewModel.selectProblem(problem)
                             }
                         }
@@ -138,7 +163,6 @@ struct ReportView: View {
                 ))
             }
         }
-        .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
     }
 
     // MARK: - Etape 3 : Selection de couleur
@@ -148,22 +172,23 @@ struct ReportView: View {
             Text(viewModel.stepTitle)
                 .font(Theme.Typography.h2)
                 .foregroundStyle(Theme.Colors.textPrimary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, Theme.Spacing.lg)
 
             ColorSwatchGrid(selectedColor: Binding(
                 get: { viewModel.selectedColor },
                 set: { color in
                     if let color {
-                        withAnimation(.easeInOut(duration: 0.25)) {
+                        withAnimation(Theme.Animation.smooth) {
                             viewModel.selectColor(color)
                         }
                     }
                 }
             ))
         }
-        .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
     }
 
-    // MARK: - Étape 4 : Saisie plaque + validation manuelle
+    // MARK: - Etape 4 : Saisie plaque + validation manuelle
 
     private var plateStep: some View {
         VStack(spacing: Theme.Spacing.lg) {
@@ -184,7 +209,7 @@ struct ReportView: View {
             if viewModel.isSubmitting {
                 HStack(spacing: Theme.Spacing.sm) {
                     ProgressView()
-                        .tint(Theme.Colors.accentPrimary)
+                        .tint(Theme.Colors.accentInteractive)
                     Text("Envoi en cours...")
                         .font(Theme.Typography.bodySmall)
                         .foregroundStyle(Theme.Colors.textSecondary)
@@ -221,7 +246,6 @@ struct ReportView: View {
                 .transition(.opacity)
             }
         }
-        .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
     }
 
     // MARK: - Navigation arriere
