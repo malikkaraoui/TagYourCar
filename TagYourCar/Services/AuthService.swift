@@ -247,6 +247,12 @@ final class AuthService: ObservableObject {
             throw TagYourCarError.firebaseNotConfigured
         }
 
+        // Configurer GIDSignIn si ce n'est pas déjà fait (nécessaire après deconnexion)
+        if GIDSignIn.sharedInstance.configuration == nil,
+           let clientID = FirebaseApp.app()?.options.clientID {
+            GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
+        }
+
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
               let rootViewController = windowScene.windows.first?.rootViewController else {
             throw TagYourCarError.unknownError
