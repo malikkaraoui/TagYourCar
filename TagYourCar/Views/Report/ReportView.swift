@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ReportView: View {
     @EnvironmentObject var authService: AuthService
-    @StateObject private var viewModel = ReportViewModel()
+    @ObservedObject var viewModel: ReportViewModel
 
     var body: some View {
         ZStack {

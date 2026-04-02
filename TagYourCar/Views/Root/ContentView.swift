@@ -55,13 +55,19 @@ struct ContentView: View {
 
 private struct AuthenticatedRootView: View {
     @StateObject private var plateService = PlateService()
+    @StateObject private var reportViewModel = ReportViewModel()
+    @State private var selectedTab: AppTab = .report
 
     var body: some View {
-        TabBarView(plateService: plateService)
+        TabBarView(
+            plateService: plateService,
+            reportViewModel: reportViewModel,
+            selectedTab: $selectedTab
+        )
     }
 }
 
-private enum AppTab: Hashable {
+enum AppTab: Hashable {
     case report
     case plates
 }
@@ -69,11 +75,12 @@ private enum AppTab: Hashable {
 struct TabBarView: View {
     @EnvironmentObject var authService: AuthService
     let plateService: PlateService
-    @State private var selectedTab: AppTab = .report
+    @ObservedObject var reportViewModel: ReportViewModel
+    @Binding var selectedTab: AppTab
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            ReportView()
+            ReportView(viewModel: reportViewModel)
                 .tabItem {
                     Label("Signaler", systemImage: "exclamationmark.triangle")
                 }
