@@ -99,8 +99,9 @@ final class PlateViewModel: ObservableObject {
 
             logger.info("Plate deleted successfully")
         } catch {
-            state = .error("Erreur lors de la suppression.")
-            errorMessage = "Erreur lors de la suppression. Réessayez."
+            let message = mapPlateActionError(error, fallback: "Erreur lors de la suppression. Réessayez.")
+            state = .error(message)
+            errorMessage = message
             
             // Retour haptique erreur
             haptic.prepare()
@@ -117,14 +118,22 @@ final class PlateViewModel: ObservableObject {
         do {
             try await plateService.updateFavoritePlate(nextFavoritePlateId, for: uid)
             plates = plateService.plates
+            errorMessage = nil
             haptic.prepare()
             haptic.notificationOccurred(.success)
             logger.info("Favori persiste : \(nextFavoritePlateId ?? "aucun")")
         } catch {
-            errorMessage = "Impossible de sauvegarder le favori. Réessayez."
+            errorMessage = mapPlateActionError(error, fallback: "Impossible de sauvegarder le favori. Réessayez.")
             haptic.prepare()
             haptic.notificationOccurred(.error)
             logger.error("Echec sauvegarde favori : \(error.localizedDescription)")
+        }
+    }
+
+    func clearError() {
+        errorMessage = nil
+        if case .error = state {
+            state = .loaded
         }
     }
 
@@ -163,6 +172,28 @@ final class PlateViewModel: ObservableObject {
             return "Format de plaque invalide."
         } else {
             return "Erreur lors de l'ajout de la plaque. Réessayez."
+        }
+    }
+
+    private func mapPlateActionError(_ error: Error, fallback: String) -> String {
+        if let tagError = error as? TagYourCarError,
+           let description = tagError.errorDescription {
+            return description
+        }
+
+        let nsError = error as NSError
+        let message = nsError.localizedDescription.lowercased()
+
+        if message.contains("not-found") || message.contains("introuvable") {
+            return "Plaque introuvable côté serveur. Actualisez la liste puis réessayez."
+        } else if message.contains("permission-denied") || message.contains("propres plaques") {
+            return "Vous ne pouvez modifier que vos propres plaques."
+        } else if message.contains("unauthenticated") || message.contains("authentification") {
+            return "Votre session a expiré. Reconnectez-vous puis réessayez."
+        } else if message.contains("network") || message.contains("connexion") {
+            return "Connexion indisponible. Vérifiez internet puis réessayez."
+        } else {
+            return fallback
         }
     }
 }

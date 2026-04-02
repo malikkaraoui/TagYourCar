@@ -45,7 +45,19 @@ export const deletePlate = onCall({ secrets: ["PLATE_HASH_SALT"] }, async (reque
     );
   }
 
-  await db.collection("plates").doc(plateHash).delete();
+  const userRef = db.collection("users").doc(uid);
+  const userDoc = await userRef.get();
+  const favoritePlateHash = userDoc.data()?.favoritePlateHash;
+  const shouldClearFavorite = data?.isFavorite === true || favoritePlateHash === plateHash;
+
+  const batch = db.batch();
+  batch.delete(plateDoc.ref);
+
+  if (shouldClearFavorite) {
+    batch.set(userRef, { favoritePlateHash: null }, { merge: true });
+  }
+
+  await batch.commit();
 
   return { success: true, message: "Plaque supprimee." };
 });

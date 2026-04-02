@@ -14,19 +14,25 @@ struct PlateListView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if viewModel.plates.isEmpty && viewModel.state == .loaded {
-                    emptyState
-                } else if viewModel.state == .loading && viewModel.plates.isEmpty {
-                    VStack(spacing: Theme.Spacing.md) {
-                        ProgressView()
-                            .scaleEffect(1.2)
-                        Text("Chargement de vos plaques...")
-                            .font(Theme.Typography.body)
-                            .foregroundStyle(Theme.Colors.textSecondary)
+            VStack(spacing: 0) {
+                if let errorMessage = viewModel.errorMessage {
+                    errorBanner(message: errorMessage)
+                }
+
+                Group {
+                    if viewModel.plates.isEmpty && viewModel.state == .loaded {
+                        emptyState
+                    } else if viewModel.state == .loading && viewModel.plates.isEmpty {
+                        VStack(spacing: Theme.Spacing.md) {
+                            ProgressView()
+                                .scaleEffect(1.2)
+                            Text("Chargement de vos plaques...")
+                                .font(Theme.Typography.body)
+                                .foregroundStyle(Theme.Colors.textSecondary)
+                        }
+                    } else {
+                        plateList
                     }
-                } else {
-                    plateList
                 }
             }
             .navigationTitle("Mes plaques")
@@ -168,5 +174,29 @@ struct PlateListView: View {
         } message: {
             Text("Cette action est irréversible. Vous ne recevrez plus de notifications pour ce véhicule.")
         }
+    }
+
+    private func errorBanner(message: String) -> some View {
+        HStack(alignment: .top, spacing: Theme.Spacing.sm) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(Theme.Colors.error)
+
+            Text(message)
+                .font(Theme.Typography.caption)
+                .foregroundStyle(Theme.Colors.textPrimary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            Button {
+                viewModel.clearError()
+            } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(Theme.Colors.textSecondary)
+            }
+            .accessibilityLabel("Masquer l'erreur")
+        }
+        .padding(.horizontal, Theme.Spacing.md)
+        .padding(.vertical, Theme.Spacing.sm)
+        .background(Theme.Colors.error.opacity(0.12))
     }
 }

@@ -73,6 +73,7 @@ export const hashPlate = onCall({ secrets: ["PLATE_HASH_SALT"] }, async (request
     ownerUid: uid,
     addedAt: new Date(),
     verified: false,
+    isFavorite: false,
   });
 
   return { success: true, message: "Plaque enregistree avec succes." };
