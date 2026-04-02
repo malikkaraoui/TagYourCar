@@ -67,8 +67,11 @@ final class AuthService: ObservableObject {
     }
 
     func activateIfNeeded() {
+        // S'assurer que Firebase est configuré avant toute opération
+        FirebaseBootstrap.configureIfNeeded()
+
         guard isFirebaseConfigured else {
-            logger.warning("Firebase non configuré — authentification indisponible tant que GoogleService-Info.plist est absent")
+            logger.warning("Firebase non configuré — GoogleService-Info.plist absent")
             isReady = true
             return
         }
