@@ -71,34 +71,8 @@ struct LoginView: View {
                         }
                         .accessibilityLabel("Se connecter avec Google")
 
-                        Button {
-                            Task {
-                                do {
-                                    try await authService.signInWithGitHub()
-                                } catch {
-                                    let nsError = error as NSError
-                                    if nsError.code == AuthErrorCode.webContextCancelled.rawValue || nsError.code == AuthErrorCode.webContextAlreadyPresented.rawValue {
-                                        return // Annulation silencieuse
-                                    }
-                                    viewModel.errorMessage = "Connexion GitHub échouée."
-                                }
-                            }
-                        } label: {
-                            HStack {
-                                Image(systemName: "chevron.left.forwardslash.chevron.right")
-                                Text("Continuer avec GitHub")
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(Theme.Spacing.md)
-                            .background(Theme.Colors.bgCard)
-                            .foregroundStyle(Theme.Colors.textPrimary)
-                            .cornerRadius(Theme.Radius.md)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: Theme.Radius.md)
-                                    .stroke(Theme.Colors.bgSeparator, lineWidth: 1)
-                            )
-                        }
-                        .accessibilityLabel("Se connecter avec GitHub")
+                        // GitHub Sign-In masqué — erreur sessionStorage sur iOS (signInWithRedirect incompatible)
+                        // Sera réactivé avec ASWebAuthenticationSession
                     }
 
                     // Separator
