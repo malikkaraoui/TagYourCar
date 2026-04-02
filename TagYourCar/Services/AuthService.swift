@@ -71,13 +71,17 @@ final class AuthService: ObservableObject {
                 guard let self else { return }
                 if let firebaseUser {
                     self.isAuthenticated = true
-                    await self.fetchOrCreateUser(firebaseUser: firebaseUser)
                 } else {
                     self.isAuthenticated = false
                     self.currentUser = nil
                 }
+                // Debloquer l'UI immédiatement — le fetch Firestore est en arrière-plan
                 if !self.isReady {
                     self.isReady = true
+                }
+                // Charger le profil utilisateur sans bloquer l'affichage
+                if let firebaseUser {
+                    await self.fetchOrCreateUser(firebaseUser: firebaseUser)
                 }
             }
         }
