@@ -6,7 +6,8 @@ struct TagYourCarApp: App {
 
     var body: some Scene {
         WindowGroup {
-            BootstrapRootView(notificationHandler: delegate.notificationHandler)
+            UIKitBootstrapView(notificationHandler: delegate.notificationHandler)
+                .ignoresSafeArea()
         }
     }
 }

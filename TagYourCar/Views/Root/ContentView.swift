@@ -1,39 +1,5 @@
 import SwiftUI
 
-struct BootstrapRootView: View {
-    @ObservedObject var notificationHandler: NotificationHandler
-    @State private var authService: AuthService?
-    @State private var didStartBootstrap = false
-
-    var body: some View {
-        Group {
-            if let authService {
-                ContentView(notificationHandler: notificationHandler)
-                    .environmentObject(authService)
-            } else {
-                LaunchBridgeView()
-                    .task {
-                        await bootstrapIfNeeded()
-                    }
-            }
-        }
-    }
-
-    @MainActor
-    private func bootstrapIfNeeded() async {
-        guard !didStartBootstrap else { return }
-        didStartBootstrap = true
-
-        try? await Task.sleep(nanoseconds: 16_000_000)
-
-        FirebaseBootstrap.configureIfNeeded()
-
-        let service = AuthService()
-        service.activateIfNeeded()
-        authService = service
-    }
-}
-
 struct ContentView: View {
     @EnvironmentObject var authService: AuthService
     @StateObject private var networkMonitor = NetworkMonitor()
@@ -84,26 +50,6 @@ struct ContentView: View {
         }
         .animation(.easeInOut(duration: 0.3), value: networkMonitor.isConnected)
         .animation(.easeInOut(duration: 0.3), value: notificationHandler.showReportDetail)
-    }
-}
-
-private struct LaunchBridgeView: View {
-    var body: some View {
-        ZStack {
-            Theme.Colors.bgPrimary
-                .ignoresSafeArea()
-
-            VStack(spacing: Theme.Spacing.md) {
-                Text("TagYourCar")
-                    .font(.system(size: 34, weight: .bold))
-                    .foregroundStyle(Theme.Colors.textPrimary)
-
-                Text("Signalez. Protégez. Communauté.")
-                    .font(Theme.Typography.bodySmall)
-                    .foregroundStyle(Theme.Colors.textSecondary)
-            }
-            .offset(y: -34)
-        }
     }
 }
 
