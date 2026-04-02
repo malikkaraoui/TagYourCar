@@ -3,20 +3,14 @@ import UIKit
 
 struct CarZoneSelector: View {
     @Binding var selectedZone: VehicleZone?
-    private let impactMedium = UIImpactFeedbackGenerator(style: .medium)
 
     var body: some View {
         VStack(spacing: Theme.Spacing.sm) {
-            // Zone avant
             zoneButton(for: .front)
-
-            // Zone milieu
             zoneButton(for: .middle)
-
-            // Zone arriere
             zoneButton(for: .rear)
         }
-        .padding(Theme.Spacing.lg)
+        .padding(.horizontal, Theme.Spacing.lg)
     }
 
     @ViewBuilder
@@ -24,16 +18,19 @@ struct CarZoneSelector: View {
         let isSelected = selectedZone == zone
 
         Button {
-            impactMedium.prepare()
-            impactMedium.impactOccurred(intensity: 0.8)
             selectedZone = zone
         } label: {
             ZoneShape(zone: zone)
-                .fill(isSelected ? Theme.Colors.accentInteractive : Theme.Colors.bgCard)
+                .fill(isSelected
+                      ? Theme.Colors.accentInteractive.opacity(0.12)
+                      : Theme.Colors.bgCard)
                 .frame(height: zoneHeight(for: zone))
                 .overlay(
                     ZoneShape(zone: zone)
-                        .stroke(isSelected ? Theme.Colors.accentInteractive : Theme.Colors.bgSeparator, lineWidth: isSelected ? 2 : 1)
+                        .stroke(
+                            isSelected ? Theme.Colors.accentInteractive : Theme.Colors.bgSeparator,
+                            lineWidth: isSelected ? 3 : 1
+                        )
                 )
                 .overlay {
                     VStack(spacing: Theme.Spacing.xs) {
@@ -44,13 +41,14 @@ struct CarZoneSelector: View {
                             .textCase(.uppercase)
                             .tracking(0.5)
                     }
-                    .foregroundStyle(isSelected ? Theme.Colors.textOnAccent : Theme.Colors.textSecondary)
+                    .foregroundStyle(isSelected ? Theme.Colors.accentInteractive : Theme.Colors.textSecondary)
                 }
                 .contentShape(Rectangle())
                 .cardShadow()
+                .scaleEffect(isSelected ? 1.02 : 1.0)
+                .animation(Theme.Animation.snappy, value: isSelected)
         }
-        .scaleEffect(isSelected ? 1.05 : 1.0)
-        .animation(.spring(response: 0.25, dampingFraction: 0.6), value: isSelected)
+        .buttonStyle(TilePressStyle())
         .accessibilityLabel(accessibilityLabel(for: zone))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
