@@ -46,6 +46,7 @@ struct CarZoneSelector: View {
                     }
                     .foregroundStyle(isSelected ? Theme.Colors.textOnAccent : Theme.Colors.textSecondary)
                 }
+                .contentShape(Rectangle())
                 .cardShadow()
         }
         .scaleEffect(isSelected ? 1.05 : 1.0)

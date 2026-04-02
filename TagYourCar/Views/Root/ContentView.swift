@@ -10,12 +10,21 @@ struct ContentView: View {
             Theme.Colors.bgPrimary
                 .ignoresSafeArea()
 
-            Group {
-                if authService.isAuthenticated {
-                    TabBarView(plateService: plateService)
-                } else {
-                    LoginView(authService: authService)
+            if !authService.isReady {
+                // Splash SwiftUI — remplace le LaunchScreen dès que la vue est montée
+                VStack(spacing: Theme.Spacing.md) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.system(size: 40))
+                        .foregroundStyle(Theme.Colors.accentInteractive)
+                    Text("TagYourCar")
+                        .font(Theme.Typography.display)
+                        .foregroundStyle(Theme.Colors.textPrimary)
+                        .tracking(-0.5)
                 }
+            } else if authService.isAuthenticated {
+                TabBarView(plateService: plateService)
+            } else {
+                LoginView(authService: authService)
             }
 
             // Ecran detail signalement par-dessus (deep link notification)

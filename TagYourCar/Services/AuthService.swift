@@ -12,6 +12,7 @@ import os
 final class AuthService: ObservableObject {
     @Published var currentUser: AppUser?
     @Published var isAuthenticated = false
+    @Published var isReady = false
     @Published var needsCGUAcceptance = false
 
     private lazy var auth: Auth? = {
@@ -31,12 +32,15 @@ final class AuthService: ObservableObject {
     }
 
     init() {
-        activateIfNeeded()
+        // Ne pas appeler activateIfNeeded() ici — Firebase n'est pas encore
+        // configuré (AppDelegate.didFinishLaunching n'a pas encore été appelé).
+        // L'activation est déclenchée par .task dans TagYourCarApp.
     }
 
     func activateIfNeeded() {
         guard isFirebaseConfigured else {
-            logger.warning("Firebase non configure — authentification indisponible tant que GoogleService-Info.plist est absent")
+            logger.warning("Firebase non configuré — authentification indisponible tant que GoogleService-Info.plist est absent")
+            isReady = true
             return
         }
 
@@ -71,6 +75,9 @@ final class AuthService: ObservableObject {
                 } else {
                     self.isAuthenticated = false
                     self.currentUser = nil
+                }
+                if !self.isReady {
+                    self.isReady = true
                 }
             }
         }
