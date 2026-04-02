@@ -98,7 +98,7 @@ final class PlateViewModel: ObservableObject {
             logger.info("Plate deleted successfully")
         } catch {
             state = .error("Erreur lors de la suppression.")
-            errorMessage = "Erreur lors de la suppression. Reessayez."
+            errorMessage = "Erreur lors de la suppression. Réessayez."
             
             // Retour haptique erreur
             haptic.prepare()
@@ -151,12 +151,12 @@ final class PlateViewModel: ObservableObject {
 
         if message.contains("limite") || message.contains("resource-exhausted") {
             return "Limite de 5 plaques atteinte."
-        } else if message.contains("deja enregistree") || message.contains("already-exists") {
-            return "Cette plaque est deja enregistree."
+        } else if message.contains("déjà enregistrée") || message.contains("already-exists") {
+            return "Cette plaque est déjà enregistrée."
         } else if message.contains("format") || message.contains("invalid-argument") {
             return "Format de plaque invalide."
         } else {
-            return "Erreur lors de l'ajout de la plaque. Reessayez."
+            return "Erreur lors de l'ajout de la plaque. Réessayez."
         }
     }
 }
